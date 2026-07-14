@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard ผลการประเมิน | OSCE & แบบทดสอบความรู้</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#F5F7F6; --surface:#FFFFFF; --ink:#132A25; --ink-soft:#4B5F5A;
+    --primary:#0F6E5C; --primary-dark:#0A4F42; --primary-tint:#E3EEEA;
+    --accent:#C97B2E; --accent-tint:#F7E9D8;
+    --danger:#AE4239; --danger-tint:#F5E4E2;
+    --line:#DDE5E2; --radius:14px;
+    --font-display:'Fraunces', Georgia, serif;
+    --font-body:'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --font-mono:'IBM Plex Mono', 'Courier New', monospace;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font-body);line-height:1.5;}
+  header.top{background:linear-gradient(135deg,var(--primary-dark),var(--primary));color:#fff;padding:26px 24px 20px;}
+  .eyebrow{font-family:var(--font-mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;opacity:.85;margin:0 0 6px;}
+  header.top h1{font-family:var(--font-display);font-weight:600;font-size:clamp(20px,3.2vw,30px);margin:0 0 6px;}
+  header.top .sub{font-size:14px;opacity:.9;display:flex;flex-wrap:wrap;gap:14px;align-items:center;}
+  .refresh-btn{background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.35);color:#fff;padding:6px 14px;border-radius:100px;font-size:13px;cursor:pointer;font-family:var(--font-body);}
+  .refresh-btn:hover{background:rgba(255,255,255,.24);}
+  nav.tabs{display:flex;gap:4px;background:var(--surface);border-bottom:1px solid var(--line);padding:0 20px;overflow-x:auto;position:sticky;top:0;z-index:10;}
+  nav.tabs button{border:none;background:none;padding:14px 16px;font-family:var(--font-body);font-weight:600;font-size:14px;color:var(--ink-soft);cursor:pointer;border-bottom:3px solid transparent;white-space:nowrap;}
+  nav.tabs button.active{color:var(--primary-dark);border-bottom-color:var(--primary);}
+  main{max-width:1200px;margin:0 auto;padding:22px 20px 60px;}
+  section.view{display:none;} section.view.active{display:block;}
+  .grid-kpi{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:14px;margin-bottom:22px;}
+  .kpi{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:16px 18px;}
+  .kpi .label{font-size:12.5px;color:var(--ink-soft);margin-bottom:8px;}
+  .kpi .value{font-family:var(--font-mono);font-size:25px;font-weight:600;color:var(--primary-dark);}
+  .kpi .value.warn{color:var(--accent);} .kpi .value.bad{color:var(--danger);}
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:20px;margin-bottom:20px;}
+  .card h2{font-family:var(--font-display);font-size:19px;margin:0 0 4px;}
+  .card h3{font-family:var(--font-display);font-size:16px;margin:18px 0 8px;}
+  .card .hint{font-size:12.5px;color:var(--ink-soft);margin:0 0 16px;}
+  .gauge-wrap{display:flex;gap:28px;flex-wrap:wrap;align-items:center;justify-content:center;padding:10px 0 4px;}
+  .gauge-num{font-family:var(--font-mono);font-size:14px;color:var(--ink-soft);text-align:left;margin-bottom:6px;}
+  .legend-dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px;}
+  .bar-row{display:grid;grid-template-columns:190px 1fr 56px;align-items:center;gap:10px;margin-bottom:9px;font-size:13px;}
+  .bar-row .track{background:var(--primary-tint);border-radius:8px;height:13px;overflow:hidden;}
+  .bar-row .fill{height:100%;background:var(--primary);border-radius:8px;}
+  .bar-row .fill.warn{background:var(--accent);} .bar-row .fill.bad{background:var(--danger);}
+  .bar-row .val{font-family:var(--font-mono);text-align:right;}
+  table{width:100%;border-collapse:collapse;font-size:13.5px;}
+  th,td{padding:9px 10px;text-align:left;border-bottom:1px solid var(--line);white-space:nowrap;}
+  th{font-family:var(--font-mono);font-size:11px;text-transform:uppercase;letter-spacing:.03em;color:var(--ink-soft);position:sticky;top:0;background:var(--surface);}
+  tr:hover td{background:var(--bg);cursor:pointer;}
+  .pill{display:inline-block;padding:2px 10px;border-radius:100px;font-size:12px;font-weight:600;}
+  .pill.pass{background:var(--primary-tint);color:var(--primary-dark);}
+  .pill.fail{background:var(--danger-tint);color:var(--danger);}
+  .pill.mixed{background:var(--accent-tint);color:var(--accent);}
+  .pill.none{background:var(--line);color:var(--ink-soft);}
+  .table-scroll{overflow:auto;max-height:480px;border:1px solid var(--line);border-radius:10px;}
+  .toolbar{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px;align-items:center;}
+  input[type="text"]{font-family:var(--font-body);font-size:14px;padding:9px 12px;border:1px solid var(--line);border-radius:8px;flex:1;min-width:200px;background:var(--surface);}
+  select{font-family:var(--font-body);font-size:13px;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--surface);}
+  .state-msg{padding:14px 16px;border-radius:10px;font-size:13.5px;background:var(--accent-tint);color:#7A4A16;margin-bottom:16px;}
+  .state-msg.error{background:var(--danger-tint);color:var(--danger);}
+  .state-msg code{background:rgba(0,0,0,.06);padding:1px 5px;border-radius:4px;}
+  details.settings{margin-bottom:20px;} details.settings summary{cursor:pointer;font-size:13px;color:var(--ink-soft);font-family:var(--font-mono);padding:6px 0;}
+  pre.raw{background:#0F241F;color:#CFE8DE;padding:14px;border-radius:10px;font-size:12px;overflow:auto;max-height:320px;font-family:var(--font-mono);}
+  ul.rec-list{margin:0;padding-left:20px;} ul.rec-list li{margin-bottom:6px;font-size:13.5px;}
+  .chip-row{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px;}
+  .chip{padding:5px 12px;border-radius:100px;background:var(--primary-tint);color:var(--primary-dark);font-size:12.5px;font-weight:600;cursor:pointer;border:1px solid transparent;}
+  .chip.active{background:var(--primary-dark);color:#fff;}
+  .person-detail{border-top:2px dashed var(--line);margin-top:16px;padding-top:16px;}
+  footer{text-align:center;font-size:12px;color:var(--ink-soft);padding:24px;}
+  @media (max-width:640px){ .table-scroll{max-height:none;} }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <p class="eyebrow">ฝ่ายการพยาบาล · คณะแพทยศาสตร์รามาธิบดี · ศูนย์การแพทย์รามาธิบดีจักรีนฤบดินทร์</p>
+  <h1>Dashboard ผลการประเมิน OSCE &amp; แบบทดสอบวัดระดับความรู้</h1>
+  <div class="sub">
+    <span id="lastUpdated">ยังไม่ได้ดึงข้อมูล</span>
+    <button class="refresh-btn" id="refreshBtn">↻ ดึงข้อมูลใหม่</button>
+  </div>
+</header>
+
+<nav class="tabs">
+  <button data-view="division" class="active">ภาพรวมฝ่ายการพยาบาล</button>
+  <button data-view="dept">รายหน่วยงาน</button>
+  <button data-view="person">รายบุคคล</button>
+  <button data-view="table">ตารางรวม</button>
+</nav>
+
+<main>
+  <details class="settings">
+    <summary>⚙ ข้อมูลดิบ / ตรวจสอบคอลัมน์</summary>
+    <div class="card" style="margin-top:12px;">
+      <h3>OSCE (ผลประเมิน) — คอลัมน์ที่พบ</h3>
+      <pre class="raw" id="osceRaw">–</pre>
+      <h3>แบบทดสอบความรู้ (result) — คอลัมน์ที่พบ</h3>
+      <pre class="raw" id="knowRaw">–</pre>
+    </div>
+  </details>
+
+  <div id="globalState"></div>
+
+  <!-- DIVISION -->
+  <section class="view active" id="view-division">
+    <div class="grid-kpi" id="divKpis"></div>
+    <div class="card">
+      <h2>สถานะความพร้อมโดยรวม</h2>
+      <p class="hint">สัดส่วนบุคลากรที่มีผลครบทั้งสองการประเมิน (OSCE + ความรู้ครบ 4 หัวข้อ)</p>
+      <div class="gauge-wrap" id="gaugeWrap"></div>
+    </div>
+    <div class="card">
+      <h2>เปรียบเทียบอัตราผ่านรายหน่วยงาน</h2>
+      <div id="deptCompareBars"></div>
+    </div>
+    <div class="card">
+      <h2>คะแนนเฉลี่ยรายสถานี (OSCE) และรายหัวข้อ (ความรู้) — ภาพรวมฝ่าย</h2>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;" id="divBarsGrid"></div>
+    </div>
+    <div class="card">
+      <h2>วิเคราะห์และข้อเสนอแนะระดับฝ่าย</h2>
+      <ul class="rec-list" id="divRecs"></ul>
+    </div>
+  </section>
+
+  <!-- DEPT -->
+  <section class="view" id="view-dept">
+    <div class="toolbar">
+      <select id="deptSelect"></select>
+    </div>
+    <div class="grid-kpi" id="deptKpis"></div>
+    <div class="card">
+      <h2>คะแนนเฉลี่ยรายสถานี / รายหัวข้อ — หน่วยงานที่เลือก</h2>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;" id="deptBarsGrid"></div>
+    </div>
+    <div class="card">
+      <h2>วิเคราะห์และข้อเสนอแนะ — หน่วยงานที่เลือก</h2>
+      <ul class="rec-list" id="deptRecs"></ul>
+    </div>
+    <div class="card">
+      <h2>รายชื่อบุคลากรในหน่วยงานนี้</h2>
+      <div class="table-scroll">
+        <table>
+          <thead><tr><th>รหัส</th><th>ชื่อ</th><th>ผล OSCE</th><th>ผลความรู้</th><th>สถานะรวม</th></tr></thead>
+          <tbody id="deptTbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- PERSON -->
+  <section class="view" id="view-person">
+    <div class="card">
+      <div class="toolbar">
+        <input type="text" id="personSearch" placeholder="ค้นหาด้วยรหัสหรือชื่อ...">
+      </div>
+      <div class="table-scroll" style="max-height:260px;">
+        <table>
+          <thead><tr><th>รหัส</th><th>ชื่อ</th><th>หน่วยงาน</th><th>สถานะรวม</th></tr></thead>
+          <tbody id="personListTbody"></tbody>
+        </table>
+      </div>
+      <div class="person-detail" id="personDetail" style="display:none;"></div>
+    </div>
+  </section>
+
+  <!-- TABLE -->
+  <section class="view" id="view-table">
+    <div class="card">
+      <h2>ตารางรวมผลรายบุคคล</h2>
+      <div class="toolbar">
+        <input type="text" id="searchBox" placeholder="ค้นหาด้วยรหัสหรือชื่อ...">
+        <select id="statusFilter">
+          <option value="">สถานะทั้งหมด</option>
+          <option value="pass">ผ่านทั้งคู่</option>
+          <option value="mixed">ผ่านบางส่วน</option>
+          <option value="fail">ไม่ผ่าน</option>
+          <option value="none">ข้อมูลไม่ครบ</option>
+        </select>
+      </div>
+      <div class="table-scroll">
+        <table>
+          <thead><tr><th>รหัส</th><th>ชื่อ</th><th>หน่วยงาน</th><th>%OSCE</th><th>ผล OSCE</th><th>ความรู้เฉลี่ย%</th><th>ผลความรู้</th><th>สถานะรวม</th></tr></thead>
+          <tbody id="combinedTbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>ดึงข้อมูลตรงจาก Google Sheets (Google Visualization API) — เกณฑ์ผ่าน ${CONFIG_PASS}% ต่อสถานี/หัวข้อ</footer>
+
+<script>
+const CONFIG = {
+  knowledge: { sheetId: "1tXkhE-lJM6ctklio1cGCYcEiQ3DANUCUxLges3NtXY8", tab: "result" },
+  osce: { sheetId: "1oHdRbbVlgecskJXNnKWnvgv7HiYbIhw6BLJwJu7USTE", tab: "ผลประเมิน" },
+  passThreshold: 80
+};
+document.querySelector("footer").textContent =
+  "ดึงข้อมูลตรงจาก Google Sheets (Google Visualization API) — เกณฑ์ผ่าน " + CONFIG.passThreshold + "% ต่อสถานี/หัวข้อ";
+
+let oData = { byPerson:new Map(), stations:[] };
+let kData = { byPerson:new Map(), topics:[] };
+let combined = [];
+let deptMap = new Map();
+let selectedPersonId = null;
+
+function findKey(cols, patterns){
+  for(const p of patterns){
+    const hit = cols.find(c => c.toLowerCase().includes(p.toLowerCase()));
+    if(hit) return hit;
+  }
+  return null;
+}
+function parseGvizDate(v){
+  if(typeof v === "string" && v.startsWith("Date(")){
+    const parts = v.slice(5,-1).split(",").map(Number);
+    return new Date(parts[0], parts[1], parts[2], parts[3]||0, parts[4]||0, parts[5]||0);
+  }
+  return null;
+}
+async function fetchSheet(sheetId, tab){
+  const url = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(tab)}`;
+  const res = await fetch(url);
+  if(!res.ok) throw new Error("HTTP " + res.status);
+  const text = await res.text();
+  const start = text.indexOf("{");
+  const end = text.lastIndexOf("}");
+  if(start === -1 || end === -1) throw new Error("ไม่พบข้อมูลตาราง (ตรวจสอบชื่อแท็บและสิทธิ์การแชร์)");
+  const json = JSON.parse(text.substring(start, end+1));
+  if(!json.table || !json.table.cols) throw new Error("โครงสร้างข้อมูลไม่ถูกต้อง");
+  const cols = json.table.cols.map((c,i) => (c.label && c.label.trim()) || c.id || ("col"+i));
+  const rows = (json.table.rows||[]).map(r=>{
+    const obj = {};
+    cols.forEach((label,i)=>{
+      const cell = r.c && r.c[i];
+      let val = "";
+      if(cell){
+        if(cell.v !== null && cell.v !== undefined) val = cell.v;
+        else if(cell.f !== undefined) val = cell.f;
+      }
+      obj[label] = val;
+    });
+    return obj;
+  });
+  return rows;
+}
+
+function processKnowledge(rows){
+  if(!rows.length) return { byPerson:new Map(), topics:[] };
+  const cols = Object.keys(rows[0]);
+  const idKey = findKey(cols,["employ","รหัส","id"]);
+  const nameKey = findKey(cols,["name","ชื่อ"]);
+  const deptKey = findKey(cols,["department","หน่วยงาน","แผนก"]);
+  const topicKey = findKey(cols,["topiclabel"]) || findKey(cols,["topic"]);
+  const scoreKey = findKey(cols,["score"]);
+  const totalKey = findKey(cols,["total"]);
+  const percentKey = findKey(cols,["percen","%"]);
+  const passedKey = findKey(cols,["passed"]);
+  const tsKey = findKey(cols,["timestamp","วันที่"]);
+
+  const topicsSet = new Set();
+  const latest = new Map();
+  rows.forEach((r, idx)=>{
+    if(!idKey) return;
+    const id = String(r[idKey]).trim();
+    if(!id) return;
+    const topic = String(topicKey ? r[topicKey] : "").trim();
+    if(!topic) return;
+    topicsSet.add(topic);
+    const key = id + "|" + topic;
+    const ts = tsKey ? (parseGvizDate(r[tsKey])?.getTime() ?? idx) : idx;
+    const existing = latest.get(key);
+    if(!existing || ts >= existing.ts){
+      latest.set(key, { row:r, ts, name: nameKey?r[nameKey]:null, dept: deptKey?r[deptKey]:null });
+    }
+  });
+
+  const byPerson = new Map();
+  latest.forEach((entry, key)=>{
+    const [id, topic] = key.split("|");
+    if(!byPerson.has(id)) byPerson.set(id, { id, name:entry.name, dept:entry.dept, topics:{} });
+    const p = byPerson.get(id);
+    if(!p.name && entry.name) p.name = entry.name;
+    if(!p.dept && entry.dept) p.dept = entry.dept;
+    const r = entry.row;
+    const score = scoreKey ? Number(r[scoreKey]) : null;
+    const total = totalKey ? Number(r[totalKey]) : null;
+    let percent = percentKey ? Number(r[percentKey]) : null;
+    if((percent===null || isNaN(percent)) && score!==null && total) percent = (score/total)*100;
+    const passedRaw = passedKey ? String(r[passedKey]).toUpperCase() : null;
+    let passed = null;
+    if(passedRaw){
+      passed = (passedRaw.includes("PASS") || passedRaw.includes("ผ่าน")) && !passedRaw.includes("ไม่") && !passedRaw.includes("FAIL");
+    } else if(percent!==null && !isNaN(percent)){
+      passed = percent >= CONFIG.passThreshold;
+    }
+    p.topics[topic] = { score, total, percent: (percent!==null && !isNaN(percent))?percent:null, passed };
+  });
+
+  return { byPerson, topics: Array.from(topicsSet) };
+}
+
+function processOsce(rows){
+  if(!rows.length) return { byPerson:new Map(), stations:[] };
+  const cols = Object.keys(rows[0]);
+  const idKey = findKey(cols,["รหัสบุคลากร","รหัส","id"]);
+  const nameKey = findKey(cols,["ชื่อ-สกุล","ชื่อ","name"]);
+  const deptKey = findKey(cols,["หน่วยงาน","department"]);
+  const totalPercentKey = findKey(cols,["%รวม"]);
+  const totalScoreKey = findKey(cols,["คะแนนรวม"]);
+  const criticalKey = findKey(cols,["criticalfail","critical"]);
+  const resultKey = findKey(cols,["ผลสรุป"]);
+  const tsKey = findKey(cols,["timestamp","วันที่"]);
+
+  const stationPctKeys = cols.filter(c => c.trim().startsWith("%") && c.includes("สถานี"));
+  const stationRawKeys = cols.filter(c => c.includes("สถานี") && !c.trim().startsWith("%") && !c.trim().startsWith("ผล") && !c.includes("ผู้ประเมิน"));
+  const useStationKeys = stationPctKeys.length ? stationPctKeys : stationRawKeys;
+  const stationLabels = useStationKeys.map(k => k.replace(/^%/, "").trim());
+
+  const latest = new Map();
+  rows.forEach((r, idx)=>{
+    if(!idKey) return;
+    const id = String(r[idKey]).trim();
+    if(!id) return;
+    const ts = tsKey ? (parseGvizDate(r[tsKey])?.getTime() ?? idx) : idx;
+    const existing = latest.get(id);
+    if(!existing || ts >= existing.ts) latest.set(id, { row:r, ts });
+  });
+
+  const byPerson = new Map();
+  latest.forEach((entry, id)=>{
+    const r = entry.row;
+    const stations = {};
+    useStationKeys.forEach((k,i)=>{
+      const v = Number(r[k]);
+      stations[stationLabels[i]] = isFinite(v) ? v : null;
+    });
+    const totalPercent = totalPercentKey ? Number(r[totalPercentKey]) : null;
+    const critical = criticalKey ? String(r[criticalKey]||"").trim() : "";
+    const resultText = resultKey ? String(r[resultKey]||"").trim() : "";
+    let passed = null;
+    if(resultText){
+      passed = resultText.includes("ผ่าน") && !resultText.includes("ไม่ผ่าน");
+    } else if(totalPercent!==null && !isNaN(totalPercent)){
+      passed = totalPercent >= CONFIG.passThreshold;
+    }
+    if(critical) passed = false;
+    byPerson.set(id, {
+      id, name: nameKey?r[nameKey]:null, dept: deptKey?r[deptKey]:null,
+      stations, totalPercent: (totalPercent!==null && !isNaN(totalPercent))?totalPercent:null,
+      totalScore: totalScoreKey?Number(r[totalScoreKey]):null,
+      critical, resultText, passed
+    });
+  });
+
+  return { byPerson, stations: stationLabels };
+}
+
+function buildCombined(){
+  const ids = new Set([...oData.byPerson.keys(), ...kData.byPerson.keys()]);
+  const out = [];
+  ids.forEach(id=>{
+    const o = oData.byPerson.get(id) || null;
+    const k = kData.byPerson.get(id) || null;
+    const dept = (o && o.dept) || (k && k.dept) || "ไม่ระบุหน่วยงาน";
+    const name = (o && o.name) || (k && k.name) || "–";
+    const kTopicsAttempted = k ? Object.keys(k.topics).length : 0;
+    const kTopicsTotal = kData.topics.length;
+    const kComplete = k ? (kTopicsAttempted >= kTopicsTotal && kTopicsTotal>0) : false;
+    const kAllPassed = k && kTopicsAttempted>0 ? Object.values(k.topics).every(t=>t.passed) : null;
+    const kAvg = k && kTopicsAttempted ? Object.values(k.topics).reduce((s,t)=>s+(t.percent||0),0)/kTopicsAttempted : null;
+    const oPass = o ? o.passed : null;
+    const kPass = kComplete ? kAllPassed : null;
+    let status = "none";
+    if(oPass!==null && kPass!==null) status = (oPass && kPass) ? "pass" : (oPass || kPass) ? "mixed" : "fail";
+    else if(oPass!==null || kPass!==null) status = (oPass || kPass) ? "mixed" : "fail";
+    out.push({ id, name, dept, o, k, kTopicsAttempted, kTopicsTotal, kComplete, kAllPassed, kAvg, oPass, kPass, status });
+  });
+  out.sort((a,b)=> (a.name||"").localeCompare(b.name||"", "th"));
+  return out;
+}
+
+function rollupByDept(list){
+  const map = new Map();
+  list.forEach(p=>{
+    const d = p.dept || "ไม่ระบุหน่วยงาน";
+    if(!map.has(d)) map.set(d, []);
+    map.get(d).push(p);
+  });
+  return map;
+}
+
+function avgOf(arr){ return arr.length ? arr.reduce((a,b)=>a+b,0)/arr.length : null; }
+
+function weakAreas(peopleList){
+  const stationVals = {}; oData.stations.forEach(s=>stationVals[s]=[]);
+  peopleList.forEach(p=>{ if(p.o){ oData.stations.forEach(s=>{ const v=p.o.stations[s]; if(v!==null&&v!==undefined) stationVals[s].push(v); }); }});
+  const stationResult = Object.entries(stationVals).map(([label,vals])=>({label, avg:avgOf(vals), n:vals.length})).filter(x=>x.avg!==null).sort((a,b)=>a.avg-b.avg);
+
+  const topicVals = {}; kData.topics.forEach(t=>topicVals[t]=[]);
+  peopleList.forEach(p=>{ if(p.k){ kData.topics.forEach(t=>{ const rec=p.k.topics[t]; if(rec && rec.percent!==null) topicVals[t].push(rec.percent); }); }});
+  const topicResult = Object.entries(topicVals).map(([label,vals])=>({label, avg:avgOf(vals), n:vals.length})).filter(x=>x.avg!==null).sort((a,b)=>a.avg-b.avg);
+
+  return { stationResult, topicResult };
+}
+
+function passRateOf(list){
+  const withStatus = list.filter(p=>p.status!=="none");
+  if(!withStatus.length) return null;
+  const pass = withStatus.filter(p=>p.status==="pass").length;
+  return pass/withStatus.length*100;
+}
+
+/* ---------- rendering helpers ---------- */
+function kpiCard(label,value,cls=""){ return `<div class="kpi"><div class="label">${label}</div><div class="value ${cls}">${value}</div></div>`; }
+function pillHtml(pass){ if(pass===null||pass===undefined) return `<span class="pill none">–</span>`; return pass?`<span class="pill pass">ผ่าน</span>`:`<span class="pill fail">ไม่ผ่าน</span>`; }
+function statusPill(status){ const m={pass:["pass","ผ่านทั้งคู่"],mixed:["mixed","ผ่านบางส่วน"],fail:["fail","ไม่ผ่าน"],none:["none","ข้อมูลไม่ครบ"]}; const [c,l]=m[status]; return `<span class="pill ${c}">${l}</span>`; }
+function barsHtml(items){
+  if(!items.length) return `<p class="hint">ไม่มีข้อมูลเพียงพอ</p>`;
+  return items.map(x=>{
+    const cls = x.avg<60?"bad":x.avg<CONFIG.passThreshold?"warn":"";
+    return `<div class="bar-row"><span title="${x.label}">${x.label}</span><span class="track"><span class="fill ${cls}" style="width:${Math.min(100,x.avg)}%"></span></span><span class="val">${x.avg.toFixed(1)}%</span></div>`;
+  }).join("");
+}
+
+function renderDivision(){
+  const total = combined.length;
+  const oCount = combined.filter(p=>p.o).length;
+  const kCount = combined.filter(p=>p.k && p.kTopicsAttempted>0).length;
+  const completeBoth = combined.filter(p=>p.o && p.kComplete);
+  const passRate = passRateOf(combined);
+  document.getElementById("divKpis").innerHTML =
+    kpiCard("บุคลากรทั้งหมดในระบบ", total) +
+    kpiCard("มีผล OSCE", oCount) +
+    kpiCard("มีผลความรู้ (อย่างน้อย 1 หัวข้อ)", kCount) +
+    kpiCard("มีผลครบทั้งสองชุด", completeBoth.length) +
+    kpiCard("อัตราผ่านรวม", passRate!==null? passRate.toFixed(0)+"%":"–", passRate!==null&&passRate<80?"bad":"");
+
+  // gauge
+  const counts = {pass:0,mixed:0,fail:0};
+  combined.forEach(p=>{ if(counts[p.status]!==undefined) counts[p.status]++; });
+  const gTotal = counts.pass+counts.mixed+counts.fail;
+  const gaugeEl = document.getElementById("gaugeWrap");
+  if(!gTotal){ gaugeEl.innerHTML = `<p class="hint">ยังไม่มีข้อมูลเพียงพอ</p>`; }
+  else {
+    const segs=[{label:"ผ่านทั้งคู่",n:counts.pass,color:"var(--primary)"},{label:"ผ่านบางส่วน",n:counts.mixed,color:"var(--accent)"},{label:"ไม่ผ่าน",n:counts.fail,color:"var(--danger)"}];
+    const R=70,C=2*Math.PI*R; let offset=0;
+    const circles = segs.map(s=>{ const frac=s.n/gTotal; const dash=frac*C; const c=`<circle cx="90" cy="90" r="${R}" fill="none" stroke="${s.color}" stroke-width="18" stroke-dasharray="${dash} ${C-dash}" stroke-dashoffset="${-offset}"/>`; offset+=dash; return c; }).join("");
+    gaugeEl.innerHTML = `<svg width="180" height="180" viewBox="0 0 180 180"><circle cx="90" cy="90" r="${R}" fill="none" stroke="var(--line)" stroke-width="18"/>${circles}<text x="90" y="85" text-anchor="middle" font-family="IBM Plex Mono" font-size="24" font-weight="600" fill="var(--primary-dark)">${(counts.pass/gTotal*100).toFixed(0)}%</text><text x="90" y="104" text-anchor="middle" font-family="Inter" font-size="11" fill="var(--ink-soft)">ผ่านทั้งคู่</text></svg>
+    <div>${segs.map(s=>`<div class="gauge-num"><span class="legend-dot" style="background:${s.color}"></span>${s.label}: <b>${s.n} คน</b></div>`).join("")}</div>`;
+  }
+
+  // dept compare bars (pass rate per dept)
+  const deptRates = Array.from(deptMap.entries()).map(([d,list])=>({label:d+` (${list.length})`, avg: passRateOf(list) ?? 0})).sort((a,b)=>a.avg-b.avg);
+  document.getElementById("deptCompareBars").innerHTML = barsHtml(deptRates);
+
+  // division weak areas
+  const weak = weakAreas(combined);
+  document.getElementById("divBarsGrid").innerHTML =
+    `<div><h3>OSCE รายสถานี</h3>${barsHtml(weak.stationResult)}</div><div><h3>ความรู้รายหัวข้อ</h3>${barsHtml(weak.topicResult)}</div>`;
+
+  const recs = [];
+  if(passRate!==null && passRate<80) recs.push(`อัตราผ่านรวมทั้งฝ่าย (${passRate.toFixed(0)}%) ต่ำกว่าเป้าหมาย 80% ควรวางแผนอบรมทบทวนภาพรวม`);
+  weak.stationResult.slice(0,3).forEach(s=>recs.push(`จุดอ่อน OSCE ที่ควรพัฒนา: ${s.label} (เฉลี่ย ${s.avg.toFixed(0)}%, n=${s.n})`));
+  weak.topicResult.slice(0,2).forEach(t=>recs.push(`จุดอ่อนความรู้ที่ควรพัฒนา: ${t.label} (เฉลี่ย ${t.avg.toFixed(0)}%, n=${t.n})`));
+  const weakDepts = deptRates.filter(d=>d.avg<80);
+  if(weakDepts.length) recs.push(`หน่วยงานที่ควรได้รับการสนับสนุนเพิ่มเติม: ${weakDepts.map(d=>d.label).join(", ")}`);
+  if(!recs.length) recs.push("ภาพรวมทั้งฝ่ายอยู่ในเกณฑ์ดี ไม่มีจุดที่ต้องเร่งพัฒนาเป็นพิเศษ");
+  document.getElementById("divRecs").innerHTML = recs.map(r=>`<li>${r}</li>`).join("");
+}
+
+function renderDeptSelector(){
+  const sel = document.getElementById("deptSelect");
+  const depts = Array.from(deptMap.keys()).sort((a,b)=>a.localeCompare(b,"th"));
+  sel.innerHTML = depts.map(d=>`<option value="${d}">${d} (${deptMap.get(d).length} คน)</option>`).join("");
+  sel.onchange = renderDept;
+  if(depts.length) renderDept();
+}
+function renderDept(){
+  const sel = document.getElementById("deptSelect");
+  const dept = sel.value || sel.options[0]?.value;
+  const list = deptMap.get(dept) || [];
+  const passRate = passRateOf(list);
+  document.getElementById("deptKpis").innerHTML =
+    kpiCard("บุคลากรในหน่วยงาน", list.length) +
+    kpiCard("มีผล OSCE", list.filter(p=>p.o).length) +
+    kpiCard("มีผลความรู้ครบ", list.filter(p=>p.kComplete).length) +
+    kpiCard("อัตราผ่านรวม", passRate!==null?passRate.toFixed(0)+"%":"–", passRate!==null&&passRate<80?"bad":"");
+  const weak = weakAreas(list);
+  document.getElementById("deptBarsGrid").innerHTML =
+    `<div><h3>OSCE รายสถานี</h3>${barsHtml(weak.stationResult)}</div><div><h3>ความรู้รายหัวข้อ</h3>${barsHtml(weak.topicResult)}</div>`;
+  const recs = [];
+  if(passRate!==null && passRate<80) recs.push(`อัตราผ่านรวมของหน่วยงานนี้ (${passRate.toFixed(0)}%) ต่ำกว่าเป้าหมาย 80% ควรจัดอบรมทบทวนเพิ่มเติม`);
+  weak.stationResult.slice(0,2).forEach(s=>recs.push(`จุดอ่อน OSCE: ${s.label} เฉลี่ย ${s.avg.toFixed(0)}%`));
+  weak.topicResult.slice(0,2).forEach(t=>recs.push(`จุดอ่อนความรู้: ${t.label} เฉลี่ย ${t.avg.toFixed(0)}%`));
+  const failList = list.filter(p=>p.status==="fail");
+  if(failList.length) recs.push(`บุคลากรที่ยังไม่ผ่านเกณฑ์ทั้งสองด้าน: ${failList.map(p=>p.name).join(", ")}`);
+  if(!recs.length) recs.push("หน่วยงานนี้อยู่ในเกณฑ์ดี");
+  document.getElementById("deptRecs").innerHTML = recs.map(r=>`<li>${r}</li>`).join("");
+  document.getElementById("deptTbody").innerHTML = list.map(p=>`
+    <tr onclick="showPerson('${p.id}')"><td>${p.id}</td><td>${p.name}</td><td>${pillHtml(p.oPass)}</td><td>${pillHtml(p.kPass)}</td><td>${statusPill(p.status)}</td></tr>
+  `).join("");
+}
+
+function renderPersonList(filter=""){
+  const q = filter.trim().toLowerCase();
+  const rows = combined.filter(p=>!q || p.id.toLowerCase().includes(q) || (p.name||"").toLowerCase().includes(q)).slice(0,200);
+  document.getElementById("personListTbody").innerHTML = rows.map(p=>`
+    <tr onclick="showPerson('${p.id}')"><td>${p.id}</td><td>${p.name}</td><td>${p.dept}</td><td>${statusPill(p.status)}</td></tr>
+  `).join("") || `<tr><td colspan="4" style="text-align:center;color:var(--ink-soft);">ไม่พบข้อมูล</td></tr>`;
+}
+function showPerson(id){
+  selectedPersonId = id;
+  const p = combined.find(x=>x.id===id);
+  if(!p) return;
+  document.querySelectorAll('nav.tabs button').forEach(b=>b.classList.remove('active'));
+  document.querySelector('nav.tabs button[data-view="person"]').classList.add('active');
+  document.querySelectorAll('section.view').forEach(v=>v.classList.remove('active'));
+  document.getElementById('view-person').classList.add('active');
+  document.getElementById('personSearch').value = p.name || p.id;
+  renderPersonList(p.name||p.id);
+
+  const stationItems = p.o ? Object.entries(p.o.stations).filter(([,v])=>v!==null).map(([label,avg])=>({label,avg})) : [];
+  const topicItems = p.k ? Object.entries(p.k.topics).filter(([,r])=>r.percent!==null).map(([label,r])=>({label,avg:r.percent})) : [];
+
+  const recs = [];
+  stationItems.forEach(s=>{ if(s.avg<CONFIG.passThreshold) recs.push(`OSCE – ${s.label}: ${s.avg.toFixed(0)}% ควรฝึกซ้อมทบทวนเพิ่มเติม`); });
+  if(p.o && p.o.critical) recs.push(`มี Critical Step ที่ไม่ผ่านเกณฑ์: ${p.o.critical}`);
+  topicItems.forEach(t=>{ if(t.avg<CONFIG.passThreshold) recs.push(`ความรู้ – ${t.label}: ${t.avg.toFixed(0)}% ควรทบทวนเนื้อหาเพิ่มเติม`); });
+  if(p.k && p.kTopicsAttempted < p.kTopicsTotal) recs.push(`ยังทำแบบทดสอบความรู้ไม่ครบทุกหัวข้อ (${p.kTopicsAttempted}/${p.kTopicsTotal})`);
+  if(!p.o) recs.push("ยังไม่มีข้อมูลผลสอบ OSCE");
+  if(!p.k) recs.push("ยังไม่มีข้อมูลแบบทดสอบความรู้");
+  if(!recs.length) recs.push("ผ่านเกณฑ์ทุกด้าน ไม่มีจุดที่ต้องพัฒนาเพิ่มเติมในขณะนี้");
+
+  document.getElementById('personDetail').style.display = 'block';
+  document.getElementById('personDetail').innerHTML = `
+    <h2 style="font-family:var(--font-display);margin:0 0 4px;">${p.name}</h2>
+    <p class="hint">รหัส ${p.id} · หน่วยงาน ${p.dept} · สถานะรวม ${statusPill(p.status)}</p>
+    <div class="grid-kpi">
+      ${kpiCard("คะแนน OSCE รวม", p.o&&p.o.totalPercent!==null? p.o.totalPercent.toFixed(1)+"%":"–")}
+      ${kpiCard("ผล OSCE", p.oPass===null?"–":(p.oPass?"ผ่าน":"ไม่ผ่าน"), p.oPass===false?"bad":"")}
+      ${kpiCard("ความรู้เฉลี่ย", p.kAvg!==null? p.kAvg.toFixed(1)+"%":"–")}
+      ${kpiCard("ผลความรู้", p.kPass===null?"–":(p.kPass?"ผ่าน":"ไม่ผ่าน"), p.kPass===false?"bad":"")}
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;">
+      <div><h3>OSCE รายสถานี</h3>${barsHtml(stationItems)}</div>
+      <div><h3>ความรู้รายหัวข้อ</h3>${barsHtml(topicItems)}</div>
+    </div>
+    <h3>วิเคราะห์และข้อเสนอแนะรายบุคคล</h3>
+    <ul class="rec-list">${recs.map(r=>`<li>${r}</li>`).join("")}</ul>
+  `;
+}
+
+function paintCombinedTable(){
+  const q = document.getElementById("searchBox").value.trim().toLowerCase();
+  const statusFilter = document.getElementById("statusFilter").value;
+  const rows = combined.filter(p=>{
+    const mQ = !q || p.id.toLowerCase().includes(q) || (p.name||"").toLowerCase().includes(q);
+    const mS = !statusFilter || p.status===statusFilter;
+    return mQ && mS;
+  });
+  document.getElementById("combinedTbody").innerHTML = rows.map(p=>`
+    <tr onclick="showPerson('${p.id}')">
+      <td>${p.id}</td><td>${p.name}</td><td>${p.dept}</td>
+      <td>${p.o&&p.o.totalPercent!==null?p.o.totalPercent.toFixed(1):"–"}</td>
+      <td>${pillHtml(p.oPass)}</td>
+      <td>${p.kAvg!==null?p.kAvg.toFixed(1):"–"}</td>
+      <td>${pillHtml(p.kPass)}</td>
+      <td>${statusPill(p.status)}</td>
+    </tr>
+  `).join("") || `<tr><td colspan="8" style="text-align:center;color:var(--ink-soft);">ไม่พบข้อมูล</td></tr>`;
+}
+
+function errorBox(title, detail){
+  return `<div class="state-msg error"><b>${title}</b><br>${detail}<br>ตรวจสอบว่าชีตแชร์เป็น "Anyone with the link" และชื่อแท็บถูกต้อง</div>`;
+}
+
+async function loadAll(){
+  document.getElementById("lastUpdated").textContent = "กำลังดึงข้อมูล...";
+  const stateEl = document.getElementById("globalState");
+  stateEl.innerHTML = "";
+  try{
+    const [oRows, kRows] = await Promise.all([
+      fetchSheet(CONFIG.osce.sheetId, CONFIG.osce.tab),
+      fetchSheet(CONFIG.knowledge.sheetId, CONFIG.knowledge.tab)
+    ]);
+    document.getElementById("osceRaw").textContent = oRows.length ? Object.keys(oRows[0]).join("\n") : "ไม่มีข้อมูล";
+    document.getElementById("knowRaw").textContent = kRows.length ? Object.keys(kRows[0]).join("\n") : "ไม่มีข้อมูล";
+    oData = processOsce(oRows);
+    kData = processKnowledge(kRows);
+    combined = buildCombined();
+    deptMap = rollupByDept(combined);
+    document.getElementById("lastUpdated").textContent = "อัปเดตล่าสุด: " + new Date().toLocaleString("th-TH");
+    renderDivision();
+    renderDeptSelector();
+    renderPersonList();
+    paintCombinedTable();
+  }catch(e){
+    document.getElementById("lastUpdated").textContent = "ดึงข้อมูลไม่สำเร็จ";
+    stateEl.innerHTML = errorBox("โหลดข้อมูลไม่สำเร็จ", e.message);
+  }
+}
+
+document.querySelectorAll("nav.tabs button").forEach(btn=>{
+  btn.addEventListener("click", ()=>{
+    document.querySelectorAll("nav.tabs button").forEach(b=>b.classList.remove("active"));
+    document.querySelectorAll("section.view").forEach(v=>v.classList.remove("active"));
+    btn.classList.add("active");
+    document.getElementById("view-"+btn.dataset.view).classList.add("active");
+  });
+});
+document.getElementById("refreshBtn").addEventListener("click", loadAll);
+document.getElementById("searchBox").addEventListener("input", paintCombinedTable);
+document.getElementById("statusFilter").addEventListener("change", paintCombinedTable);
+document.getElementById("personSearch").addEventListener("input", (e)=>renderPersonList(e.target.value));
+
+loadAll();
+</script>
+</body>
+</html>
