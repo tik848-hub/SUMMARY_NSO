@@ -1,0 +1,1019 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>OSCE Dashboard ผู้บริหาร 2569</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:'Sarabun',sans-serif;background:#F0F4F8;color:#1A1A2E;min-height:100vh}
+:root{
+  --navy:#1A3A5C;--blue:#2C5F8A;--mid:#4A7BA8;
+  --ltBlue:#D6E8F5;--xlt:#EAF4FB;
+  --green:#1A6A40;--ltGreen:#D6EFE1;
+  --red:#8A1A1A;--ltRed:#F5D6D6;
+  --amber:#BA7517;--ltAmber:#FFF0D6;
+  --teal:#1A6A6A;--ltTeal:#D6EFEF;
+  --purple:#5A1A6A;--ltPurple:#EDD6EF;
+  --gray:#555;--ltGray:#F2F2F2;
+  --border:#DDE3EC;--white:#fff;
+  --shadow:0 2px 12px rgba(0,0,0,0.08);
+  --r:12px;--rs:8px;
+}
+.app{max-width:1280px;margin:0 auto;padding:14px}
+
+/* ── LOGIN OVERLAY ── */
+#login-overlay{position:fixed;inset:0;background:linear-gradient(135deg,var(--navy),var(--blue));
+  display:flex;align-items:center;justify-content:center;z-index:9999}
+.login-box{background:#fff;border-radius:16px;padding:32px 28px;width:340px;text-align:center;
+  box-shadow:0 20px 60px rgba(0,0,0,0.3)}
+.login-logo{font-size:40px;margin-bottom:12px}
+.login-title{font-size:18px;font-weight:700;color:var(--navy);margin-bottom:4px}
+.login-sub{font-size:12px;color:var(--gray);margin-bottom:20px}
+.login-input{width:100%;padding:11px 14px;border:1.5px solid var(--border);border-radius:var(--rs);
+  font-size:15px;font-family:'Sarabun',sans-serif;outline:none;text-align:center;
+  letter-spacing:4px;margin-bottom:10px}
+.login-input:focus{border-color:var(--blue)}
+.login-btn{width:100%;padding:12px;background:var(--navy);color:#fff;border:none;
+  border-radius:var(--rs);font-size:15px;font-weight:700;font-family:'Sarabun',sans-serif;
+  cursor:pointer;transition:background .15s}
+.login-btn:hover{background:var(--blue)}
+.login-err{color:var(--red);font-size:12px;margin-top:8px;min-height:18px}
+
+/* ── TOP BAR ── */
+.top-bar{background:var(--navy);color:#fff;padding:14px 18px;border-radius:var(--r);
+  margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;
+  flex-wrap:wrap;gap:10px}
+.top-bar h1{font-size:17px;font-weight:700}
+.top-bar p{font-size:11px;opacity:.75;margin-top:2px}
+.badge-live{background:rgba(26,106,64,0.8);color:#fff;font-size:11px;
+  padding:3px 10px;border-radius:10px;font-weight:600}
+.btn-icon{padding:6px 12px;border:none;border-radius:6px;font-size:12px;font-weight:600;
+  font-family:'Sarabun',sans-serif;cursor:pointer;background:rgba(255,255,255,.15);
+  color:#fff;transition:background .15s}
+.btn-icon:hover{background:rgba(255,255,255,.25)}
+
+/* ── TABS ── */
+.tab-row{display:flex;gap:4px;background:#fff;border-radius:var(--r);padding:5px;
+  margin-bottom:14px;box-shadow:var(--shadow);flex-wrap:wrap}
+.tab{flex:1;min-width:80px;padding:9px 6px;border:none;border-radius:var(--rs);
+  font-size:12px;font-weight:600;font-family:'Sarabun',sans-serif;
+  color:var(--gray);background:transparent;cursor:pointer;transition:all .15s;
+  display:flex;align-items:center;justify-content:center;gap:4px}
+.tab.active{background:var(--navy);color:#fff}
+.tab:hover:not(.active){background:var(--ltGray)}
+
+/* ── CARDS ── */
+.card{background:#fff;border-radius:var(--r);padding:16px 18px;
+  box-shadow:var(--shadow);margin-bottom:12px}
+.card-title{font-size:14px;font-weight:700;color:var(--navy);margin-bottom:12px;
+  display:flex;align-items:center;gap:8px}
+.metric-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:12px}
+.mc{background:#fff;border-radius:var(--r);padding:14px 16px;
+  box-shadow:var(--shadow);border-top:3px solid var(--border)}
+.mc.b{border-top-color:var(--blue)}
+.mc.g{border-top-color:var(--green)}
+.mc.r{border-top-color:var(--red)}
+.mc.a{border-top-color:var(--amber)}
+.mc.t{border-top-color:var(--teal)}
+.mv{font-size:26px;font-weight:700;line-height:1}
+.ml{font-size:11px;color:var(--gray);margin-top:5px}
+.ms{font-size:11px;color:var(--gray);margin-top:3px}
+
+/* ── GRID LAYOUTS ── */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.three-col{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+
+/* ── TABLE ── */
+.tbl{width:100%;border-collapse:collapse;font-size:12px}
+.tbl th{background:var(--navy);color:#fff;padding:9px 10px;text-align:left;font-size:11px}
+.tbl td{padding:8px 10px;border-bottom:1px solid var(--border)}
+.tbl tr:hover td{background:var(--ltGray)}
+
+/* ── BAR CHART ── */
+.bar-row{display:flex;align-items:center;gap:8px;padding:5px 0;
+  border-bottom:1px solid var(--border)}
+.bar-row:last-child{border-bottom:none}
+.bar-lbl{font-size:11px;color:var(--gray);min-width:100px}
+.bar-wrap{flex:1;background:var(--ltGray);border-radius:3px;height:18px;overflow:hidden}
+.bar-fill{height:100%;border-radius:3px;transition:width .5s}
+.bar-pct{font-size:11px;font-weight:700;min-width:36px;text-align:right}
+
+/* ── PILLS ── */
+.pill{display:inline-block;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:700}
+.p-pass{background:var(--ltGreen);color:var(--green)}
+.p-fail{background:var(--ltRed);color:var(--red)}
+.p-warn{background:var(--ltAmber);color:var(--amber)}
+
+/* ── IDP CARDS ── */
+.idp{border-left:3px solid var(--border);border-radius:0 var(--rs) var(--rs) 0;
+  padding:10px 12px;margin-bottom:8px}
+.idp.d-fail{border-left-color:var(--red);background:var(--ltRed)}
+.idp.d-warn{border-left-color:var(--amber);background:var(--ltAmber)}
+.idp.d-pass{border-left-color:var(--green);background:var(--ltGreen)}
+
+/* ── FILTER ── */
+.filter-row{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;align-items:center}
+.filter-row select,.filter-row input{
+  padding:7px 10px;border:1.5px solid var(--border);border-radius:var(--rs);
+  font-size:12px;font-family:'Sarabun',sans-serif;outline:none;background:#fff}
+.filter-row label{font-size:12px;color:var(--gray);font-weight:600}
+
+/* ── RESULT BADGE ── */
+.rb{display:inline-block;padding:4px 14px;border-radius:16px;font-size:13px;font-weight:700}
+.rb-pass{background:var(--ltGreen);color:var(--green)}
+.rb-fail{background:var(--ltRed);color:var(--red)}
+.rb-pend{background:var(--ltAmber);color:var(--amber)}
+
+/* ── RADAR ── */
+.radar-center{display:flex;justify-content:center}
+
+/* ── TRACKING TABLE ── */
+.track-head{background:var(--teal);color:#fff;padding:8px 12px;
+  border-radius:var(--rs) var(--rs) 0 0;font-size:13px;font-weight:700}
+.track-body{border:1px solid var(--ltTeal);border-top:none;border-radius:0 0 var(--rs) var(--rs)}
+
+/* ── SPINNER ── */
+.spinner{display:inline-block;width:16px;height:16px;border:2px solid var(--ltGray);
+  border-top-color:var(--blue);border-radius:50%;animation:spin .8s linear infinite;
+  margin-right:6px;vertical-align:middle}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ── VIEWS ── */
+.view{display:none}.view.active{display:block}
+
+/* ── RESP ── */
+@media(max-width:768px){
+  .metric-grid{grid-template-columns:repeat(2,1fr)}
+  .two-col,.three-col{grid-template-columns:1fr}
+  .bar-lbl{min-width:70px;font-size:10px}
+  .tbl{font-size:11px}
+}
+</style>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<!-- ══ LOGIN OVERLAY ══════════════════════════════════════════════ -->
+<div id="login-overlay">
+  <div class="login-box">
+    <div class="login-logo">📊</div>
+    <div class="login-title">OSCE Dashboard ผู้บริหาร</div>
+    <div class="login-sub">ฝ่ายการพยาบาล รพ.รามาธิบดีจักรีนฤบดินทร์ | 2569</div>
+    <input type="password" id="pw-input" class="login-input"
+      placeholder="รหัสผ่าน" maxlength="20"
+      onkeydown="if(event.key==='Enter')checkPW()">
+    <button class="login-btn" onclick="checkPW()">เข้าสู่ระบบ</button>
+    <div class="login-err" id="pw-err"></div>
+  </div>
+</div>
+
+<!-- ══ APP ════════════════════════════════════════════════════════ -->
+<div class="app" id="main-app" style="display:none">
+
+<input type="hidden" id="cfg-url"
+  value="https://script.google.com/macros/s/AKfycbz7E4nZZ8NEzK74dokQuQzPQDwuYul0RRTuaKhB_94mr3nk7tHkC9hzl-QEsY0mOGkn/exec">
+<input type="hidden" id="cfg-sheet-id"
+  value="1oHdRbbVlgecskJXNnKWnvgv7HiYbIhw6BLJwJu7USTE">
+
+<!-- TOP BAR -->
+<div class="top-bar">
+  <div>
+    <h1>📊 OSCE Dashboard ผู้บริหาร 2569</h1>
+    <p id="last-update">ฝ่ายการพยาบาล รพ.รามาธิบดีจักรีนฤบดินทร์</p>
+  </div>
+  <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
+    <span class="badge-live">● LIVE</span>
+    <button class="btn-icon" onclick="loadData()">↻ รีเฟรช</button>
+    <button class="btn-icon" onclick="loadDemoData()">🎯 Demo</button>
+    <button class="btn-icon" onclick="logout()" style="background:rgba(138,26,26,.4)">ออกจากระบบ</button>
+  </div>
+</div>
+
+<!-- TABS -->
+<div class="tab-row">
+  <button class="tab active" id="tab-overview"  onclick="showView('overview')">🏠 ภาพรวมฝ่าย</button>
+  <button class="tab" id="tab-dept"     onclick="showView('dept')">🏥 รายงานการพยาบาล</button>
+  <button class="tab" id="tab-unit"     onclick="showView('unit')">🏢 รายหน่วยงาน</button>
+  <button class="tab" id="tab-person"   onclick="showView('person')">👤 รายบุคคล</button>
+  <button class="tab" id="tab-idp"      onclick="showView('idp')">📋 แผนพัฒนา IDP</button>
+  <button class="tab" id="tab-tracking" onclick="showView('tracking')">📈 ติดตามผล</button>
+</div>
+
+<!-- ══ VIEW: OVERVIEW ═══════════════════════════════════════════ -->
+<div class="view active" id="view-overview">
+
+  <div class="metric-grid">
+    <div class="mc b"><div class="mv" id="ov-n" style="color:var(--blue)">—</div>
+      <div class="ml">พยาบาลที่ประเมินแล้ว</div>
+      <div class="ms" id="ov-n-sub">รอโหลดข้อมูล</div></div>
+    <div class="mc g"><div class="mv" id="ov-pass" style="color:var(--green)">—</div>
+      <div class="ml">ผ่านทุกฐาน</div>
+      <div class="ms" id="ov-pass-pct">—</div></div>
+    <div class="mc r"><div class="mv" id="ov-fail" style="color:var(--red)">—</div>
+      <div class="ml">ต้องสอบซ้ำ</div>
+      <div class="ms" id="ov-fail-pct">—</div></div>
+    <div class="mc a"><div class="mv" id="ov-avg" style="color:var(--amber)">—</div>
+      <div class="ml">คะแนนเฉลี่ยรวม</div>
+      <div class="ms">เต็ม 272 คะแนน</div></div>
+  </div>
+
+  <div class="two-col">
+    <div class="card">
+      <div class="card-title">อัตราผ่านรายฐาน (%)</div>
+      <div id="ov-bar"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Radar สมรรถนะเฉลี่ยฝ่าย</div>
+      <div class="radar-center"><svg id="ov-radar" viewBox="0 0 300 260" style="max-width:300px;width:100%"></svg></div>
+      <div style="display:flex;gap:14px;justify-content:center;font-size:11px;margin-top:6px">
+        <span><span style="display:inline-block;width:12px;height:3px;background:var(--blue);vertical-align:middle;margin-right:4px;border-radius:2px"></span>ค่าเฉลี่ย</span>
+        <span><span style="display:inline-block;width:12px;height:2px;background:var(--amber);vertical-align:middle;margin-right:4px;border-top:2px dashed var(--amber)"></span>เกณฑ์ 70%</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Critical Steps ที่ผิดพลาดบ่อยที่สุด</div>
+    <div id="ov-crit"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">สรุปสถานการณ์และข้อเสนอแนะระดับฝ่าย</div>
+    <div id="ov-summary"></div>
+  </div>
+</div>
+
+<!-- ══ VIEW: DEPT ════════════════════════════════════════════════ -->
+<div class="view" id="view-dept">
+  <!-- Metric summary 4 groups -->
+  <div class="metric-grid">
+    <div class="mc b" id="dp-mc-opd">
+      <div style="font-size:11px;font-weight:700;color:var(--blue);margin-bottom:4px">งานผู้ป่วยนอก (OPD)</div>
+      <div class="mv" id="dp-n-opd" style="color:var(--blue)">—</div>
+      <div class="ml" id="dp-rate-opd">รอข้อมูล</div>
+    </div>
+    <div class="mc g" id="dp-mc-ipd">
+      <div style="font-size:11px;font-weight:700;color:var(--green);margin-bottom:4px">งานผู้ป่วยใน (IPD)</div>
+      <div class="mv" id="dp-n-ipd" style="color:var(--green)">—</div>
+      <div class="ml" id="dp-rate-ipd">รอข้อมูล</div>
+    </div>
+    <div class="mc r" id="dp-mc-icu">
+      <div style="font-size:11px;font-weight:700;color:var(--red);margin-bottom:4px">งานวิกฤต (ICU)</div>
+      <div class="mv" id="dp-n-icu" style="color:var(--red)">—</div>
+      <div class="ml" id="dp-rate-icu">รอข้อมูล</div>
+    </div>
+    <div class="mc a" id="dp-mc-or">
+      <div style="font-size:11px;font-weight:700;color:var(--amber);margin-bottom:4px">งานห้องผ่าตัด/คลอด (OR/LR)</div>
+      <div class="mv" id="dp-n-or" style="color:var(--amber)">—</div>
+      <div class="ml" id="dp-rate-or">รอข้อมูล</div>
+    </div>
+  </div>
+
+  <!-- Comparison bar chart -->
+  <div class="card">
+    <div class="card-title">เปรียบเทียบอัตราผ่านรายฐาน — แยก 4 งานการพยาบาล</div>
+    <div id="dp-compare-bar"></div>
+  </div>
+
+  <!-- 4 work group detail cards -->
+  <div class="two-col">
+    <div class="card" style="border-top:3px solid var(--blue)">
+      <div class="card-title" style="color:var(--blue)">📋 งานการพยาบาลผู้ป่วยนอก (OPD)</div>
+      <div style="font-size:11px;color:var(--gray);margin-bottom:10px">หน่วยงาน: งานการพยาบาลผู้ป่วยนอก</div>
+      <div id="dp-detail-opd"></div>
+    </div>
+    <div class="card" style="border-top:3px solid var(--green)">
+      <div class="card-title" style="color:var(--green)">🏥 งานการพยาบาลผู้ป่วยใน (IPD)</div>
+      <div style="font-size:11px;color:var(--gray);margin-bottom:10px">หน่วยงาน: หอผู้ป่วย 5D, 5E, 5C, 7F</div>
+      <div id="dp-detail-ipd"></div>
+    </div>
+    <div class="card" style="border-top:3px solid var(--red)">
+      <div class="card-title" style="color:var(--red)">⚡ งานการพยาบาลผู้ป่วยวิกฤต (ICU)</div>
+      <div style="font-size:11px;color:var(--gray);margin-bottom:10px">หน่วยงาน: NICU, PICU (หอผู้ป่วยวิกฤตเด็ก), SICU (หอผู้ป่วยวิกฤตและโรคหลอดเลือดสมอง), CCU (หอผู้ป่วยวิกฤตหัวใจ)</div>
+      <div id="dp-detail-icu"></div>
+    </div>
+    <div class="card" style="border-top:3px solid var(--amber)">
+      <div class="card-title" style="color:var(--amber)">🔪 งานการพยาบาลห้องผ่าตัดและห้องคลอด (OR/LR)</div>
+      <div style="font-size:11px;color:var(--gray);margin-bottom:10px">หน่วยงาน: ห้องผ่าตัด (OR), ห้องคลอด (LR)</div>
+      <div id="dp-detail-or"></div>
+    </div>
+  </div>
+
+  <!-- Summary report -->
+  <div class="card">
+    <div class="card-title">รายงานสรุปเปรียบเทียบระดับงานการพยาบาล</div>
+    <div id="dp-report"></div>
+  </div>
+</div>
+
+<!-- ══ VIEW: UNIT ════════════════════════════════════════════════ -->
+<div class="view" id="view-unit">
+  <div class="filter-row">
+    <label>หน่วยงาน:</label>
+    <select id="unit-filter" onchange="renderUnit()">
+      <option value="">ทุกหน่วยงาน</option>
+    </select>
+  </div>
+  <div class="metric-grid" id="unit-metrics"></div>
+  <div class="two-col">
+    <div class="card">
+      <div class="card-title">คะแนนเฉลี่ยรายฐาน</div>
+      <div id="unit-bar"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Radar สมรรถนะหน่วยงาน</div>
+      <div class="radar-center"><svg id="unit-radar" viewBox="0 0 300 260" style="max-width:280px;width:100%"></svg></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">ตารางสรุปรายหน่วยงาน</div>
+    <div style="overflow-x:auto">
+      <table class="tbl" id="unit-tbl">
+        <thead><tr>
+          <th>หน่วยงาน</th><th>จำนวน</th><th>คะแนนเฉลี่ย</th><th>%</th>
+          <th>ผ่าน</th><th>ไม่ผ่าน</th><th>อัตราผ่าน</th><th>ฐานอ่อนที่สุด</th>
+        </tr></thead>
+        <tbody id="unit-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ══ VIEW: PERSON ══════════════════════════════════════════════ -->
+<div class="view" id="view-person">
+  <div class="filter-row">
+    <label>ค้นหา:</label>
+    <input type="text" id="ps-search" placeholder="ชื่อ / รหัส" oninput="renderPerson()" style="min-width:160px">
+    <label>หน่วยงาน:</label>
+    <select id="ps-unit" onchange="renderPerson()"><option value="">ทั้งหมด</option></select>
+    <label>ผล:</label>
+    <select id="ps-result" onchange="renderPerson()">
+      <option value="">ทั้งหมด</option>
+      <option value="pass">ผ่านทุกฐาน</option>
+      <option value="fail">ต้องสอบซ้ำ</option>
+    </select>
+  </div>
+  <div class="card" style="padding:0;overflow:hidden">
+    <div style="overflow-x:auto">
+      <table class="tbl" id="person-tbl">
+        <thead><tr>
+          <th>#</th><th>ชื่อ-สกุล</th><th>หน่วยงาน</th>
+          <th>คะแนน</th><th>%</th><th>ผล</th>
+          <th>F1</th><th>F2</th><th>F3</th><th>F4</th>
+          <th>F5</th><th>F6</th><th>F7</th><th>F8</th>
+        </tr></thead>
+        <tbody id="person-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+  <div id="person-detail"></div>
+</div>
+
+<!-- ══ VIEW: IDP ═════════════════════════════════════════════════ -->
+<div class="view" id="view-idp">
+  <div class="filter-row">
+    <label>หน่วยงาน:</label>
+    <select id="idp-unit" onchange="renderIDP()"><option value="">ทั้งหมด</option></select>
+    <label>ระดับ:</label>
+    <select id="idp-level" onchange="renderIDP()">
+      <option value="">ทุกระดับ</option>
+      <option value="fail">ต้องพัฒนาด่วน (&lt;70%)</option>
+      <option value="warn">ควรเสริมสร้าง (70-84%)</option>
+      <option value="pass">จุดแข็ง (≥85%)</option>
+    </select>
+  </div>
+
+  <!-- Summary by group -->
+  <div class="three-col" id="idp-group-cards"></div>
+
+  <div class="card">
+    <div class="card-title">แผนพัฒนารายบุคคล (Individual Development Plan)</div>
+    <div id="idp-list"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">แนวทางพัฒนาตามกลุ่มสมรรถนะ</div>
+    <div id="idp-group-guide"></div>
+  </div>
+</div>
+
+<!-- ══ VIEW: TRACKING ════════════════════════════════════════════ -->
+<div class="view" id="view-tracking">
+  <div class="card" style="background:linear-gradient(135deg,var(--navy),var(--teal));color:#fff">
+    <div style="font-size:15px;font-weight:700;margin-bottom:4px">📈 ระบบติดตามผลพัฒนาสมรรถนะ</div>
+    <div style="font-size:12px;opacity:.85">ติดตามความก้าวหน้าของพยาบาลใหม่ตลอดปีงบประมาณ 2569</div>
+  </div>
+
+  <!-- Timeline -->
+  <div class="card">
+    <div class="card-title">Timeline การพัฒนาสมรรถนะ</div>
+    <div id="track-timeline"></div>
+  </div>
+
+  <!-- ฐานที่ต้องสอบซ้ำ -->
+  <div class="two-col">
+    <div class="card">
+      <div class="card-title" style="color:var(--red)">⚠ รายชื่อต้องสอบซ้ำ</div>
+      <div id="track-retry-list"></div>
+    </div>
+    <div class="card">
+      <div class="card-title" style="color:var(--green)">✓ ผ่านทุกฐาน</div>
+      <div id="track-pass-list"></div>
+    </div>
+  </div>
+
+  <!-- Action Plan -->
+  <div class="card">
+    <div class="card-title">แผนปฏิบัติการติดตามผล</div>
+    <div id="track-action"></div>
+  </div>
+</div>
+
+</div><!-- /app -->
+
+<script>
+/* ══ CONFIG ════════════════════════════════════════════════════ */
+const PASSWORD = '2569'; // ← เปลี่ยนรหัสผ่านได้ที่นี่
+
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz7E4nZZ8NEzK74dokQuQzPQDwuYul0RRTuaKhB_94mr3nk7tHkC9hzl-QEsY0mOGkn/exec';
+const SHEET_ID   = '1oHdRbbVlgecskJXNnKWnvgv7HiYbIhw6BLJwJu7USTE';
+
+const ST_NAMES = ['Sterile Technique','Oral/Nasal Suction','Injection IM/ID/SC',
+  'Blood Transfusion','IV Fluid/Drug','PIV Cannulation','Venipuncture','NGT Insertion'];
+const ST_SHORT = ['Sterile','Suction','Injection','Blood Tx','IV Fluid','PIV Cann','Venipunct','NGT'];
+const ST_MAX   = [28,34,40,40,34,34,32,36];
+const TOTAL_MAX = 272;
+
+const RECS = [
+  'ฝึก Sterile Technique ซ้ำ ≥3 ครั้ง เน้น Contamination Detection + Hand Hygiene',
+  'ฝึก Suction ใน Simulation เน้นตั้งแรงดันตามวัย Timing ≤15 วินาที',
+  'ฝึก 9 Rights กรณีศึกษายาสูง เน้น Aspiration IM + ID Wheal',
+  'ทบทวน AI-web workflow ฝึก Double Check + Transfusion Reaction Protocol',
+  'ฝึก Label + Double Check + Pump programming กับพยาบาลพี่เลี้ยง',
+  'ฝึก PIV บน Phantom ≥5 ครั้ง เน้น Aseptic site prep + Flashback',
+  'ฝึก Venipuncture บน Phantom ≥5 ครั้ง ทบทวน Order of Draw',
+  'ฝึก NGT ใน Manikin ≥3 ครั้ง เน้น Length measurement + Verification',
+];
+
+const GROUPS = [
+  {label:'ป้องกันการติดเชื้อ (IC)',  sts:[0,1], color:var_('teal'),   tip:'Hand Hygiene, Sterile Technique, PPE, Aseptic'},
+  {label:'บริหารยาและสารน้ำ',        sts:[2,3,4], color:var_('amber'), tip:'9 Rights, Double Check, Pump, Blood Transfusion'},
+  {label:'ทักษะหลอดเลือดดำ',         sts:[5,6],   color:var_('purple'),tip:'PIV Cannulation, Venipuncture, Flashback'},
+  {label:'ทางเดินหายใจและอาหาร',     sts:[1,7],   color:var_('green'), tip:'Suction, NGT, Verification'},
+];
+
+function var_(k){ return getComputedStyle(document.documentElement).getPropertyValue('--'+k).trim() || '#555'; }
+
+/* ══ LOGIN ═════════════════════════════════════════════════════ */
+function checkPW(){
+  const v = document.getElementById('pw-input').value;
+  if(v === PASSWORD){
+    document.getElementById('login-overlay').style.display='none';
+    document.getElementById('main-app').style.display='block';
+    loadData();
+    setInterval(loadData, 300000);
+  } else {
+    document.getElementById('pw-err').textContent='รหัสผ่านไม่ถูกต้อง';
+    document.getElementById('pw-input').value='';
+    setTimeout(()=>document.getElementById('pw-err').textContent='',2000);
+  }
+}
+function logout(){
+  document.getElementById('main-app').style.display='none';
+  document.getElementById('login-overlay').style.display='flex';
+  document.getElementById('pw-input').value='';
+}
+document.getElementById('pw-input').addEventListener('keydown',e=>{if(e.key==='Enter')checkPW();});
+
+/* ══ DATA ══════════════════════════════════════════════════════ */
+let allData=[];
+
+function loadData(){
+  document.getElementById('last-update').innerHTML='<span class="spinner"></span>กำลังโหลด...';
+  const csvUrl=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=0&t=${Date.now()}`;
+  fetch(csvUrl)
+    .then(r=>{if(!r.ok)throw new Error();return r.text();})
+    .then(csv=>{
+      const rows=parseCSV(csv).filter(r=>r['ชื่อ-สกุล']||r['รหัสบุคลากร']);
+      if(rows.length===0)throw new Error();
+      allData=rows; renderAll();
+      document.getElementById('last-update').textContent=
+        `✓ ข้อมูลจริง ${rows.length} รายการ | อัปเดต ${new Date().toLocaleString('th-TH')}`;
+    })
+    .catch(()=>{
+      // fallback JSONP via script tag
+      loadViaScript();
+    });
+}
+
+function loadViaScript(){
+  const old=document.getElementById('gs-loader');if(old)old.remove();
+  window.__dashCB=data=>{
+    const old2=document.getElementById('gs-loader');if(old2)old2.remove();
+    if(data&&data.rows&&data.rows.length>0){
+      allData=data.rows.map(r=>{const o={};Object.keys(r).forEach(k=>o[k]=String(r[k]||''));return o;})
+        .filter(r=>r['ชื่อ-สกุล']||r['รหัสบุคลากร']);
+      if(allData.length>0){renderAll();
+        document.getElementById('last-update').textContent=
+          `✓ ข้อมูลจริง ${allData.length} รายการ | ${new Date().toLocaleString('th-TH')}`;
+        return;}
+    }
+    loadDemoData();
+  };
+  const s=document.createElement('script');s.id='gs-loader';
+  s.src=SCRIPT_URL+'?action=getData&callback=__dashCB&t='+Date.now();
+  s.onerror=()=>loadDemoData();
+  document.head.appendChild(s);
+  setTimeout(()=>{const s2=document.getElementById('gs-loader');if(s2){s2.remove();loadDemoData();}},8000);
+}
+
+function parseCSV(csv){
+  const lines=csv.split(/\r?\n/).map(l=>l.trim()).filter(Boolean);
+  if(lines.length<2)return[];
+  const headers=splitLine(lines[0]);
+  return lines.slice(1).map(line=>{
+    const vals=splitLine(line);const row={};
+    headers.forEach((h,i)=>row[h]=(vals[i]||'').trim());return row;
+  });
+}
+function splitLine(line){
+  const res=[];let cur='',inQ=false;
+  for(let i=0;i<line.length;i++){const c=line[i];
+    if(c==='"'){if(inQ&&line[i+1]==='"'){cur+='"';i++;}else inQ=!inQ;}
+    else if(c===','&&!inQ){res.push(cur);cur='';}else cur+=c;}
+  res.push(cur);return res;
+}
+
+function loadDemoData(){
+  const units=['หอผู้ป่วยวิกฤตเด็ก','หอผู้ป่วยวิกฤตทารกแรกเกิด','ห้องผ่าตัด',
+    'หอผู้ป่วย 5E','หอผู้ป่วย 5D','งานการพยาบาลผู้ป่วยนอก','หอผู้ป่วยวิกฤตหัวใจ','ห้องคลอด'];
+  const names=['นางสาว สมใจ ใจดี','นางสาว วิภา สุขสันต์','นาย ธนาวุฒิ รักษา',
+    'นางสาว กนกวรรณ ดีงาม','นาย พิชิต แข็งแกร่ง','นางสาว อรทัย มีสุข',
+    'นางสาว จิราภรณ์ ชัยชนะ','นาย ภาณุพงศ์ เก่งกาจ','นางสาว ศิริพร สดใส',
+    'นาย นันทพงศ์ ยิ้มแย้ม','นางสาว ปิยะนุช ทองดี','นาย ชัยวัฒน์ มั่นคง',
+    'นางสาว ณัฐชา ใสสะอาด','นาย สุระศักดิ์ หาญกล้า','นางสาว อภิญญา รุ่งเรือง'];
+  allData=names.map((name,idx)=>{
+    const unit=units[idx%units.length];
+    const pcts=ST_MAX.map(()=>40+Math.floor(Math.random()*60));
+    const scores=pcts.map((p,i)=>Math.round(ST_MAX[i]*p/100));
+    const total=scores.reduce((a,b)=>a+b,0);
+    const results=pcts.map(p=>p>=70?'ผ่าน':'ไม่ผ่าน');
+    const overall=results.every(r=>r==='ผ่าน')?'ผ่านทุกฐาน':'ต้องสอบซ้ำ';
+    const row={'Timestamp':new Date(Date.now()-idx*3600000).toLocaleString('th-TH'),
+      'ชื่อ-สกุล':name,'รหัสบุคลากร':String(10001+idx),'หน่วยงาน':unit};
+    ['Sterile','Suction','Injection','BloodTx','IVFluid','PIVCann','Venipuncture','NGT']
+      .forEach((k,i)=>row[`ฐาน${i+1}_${k}`]=String(scores[i]));
+    pcts.forEach((p,i)=>row[`%ฐาน${i+1}`]=String(p));
+    results.forEach((r,i)=>row[`ผลฐาน${i+1}`]=r);
+    row['คะแนนรวม']=String(total);row['%รวม']=String(Math.round(total/TOTAL_MAX*100));
+    row['ผลสรุป']=overall;return row;
+  });
+  renderAll();
+  document.getElementById('last-update').textContent='🎯 ข้อมูลตัวอย่าง (Demo) | '+new Date().toLocaleString('th-TH');
+}
+
+/* ══ RENDER ALL ════════════════════════════════════════════════ */
+function renderAll(){populateFilters();renderOverview();renderDept();renderUnit();renderPerson();renderIDP();renderTracking();}
+
+function populateFilters(){
+  const units=[...new Set(allData.map(d=>d['หน่วยงาน']).filter(Boolean))].sort();
+  ['unit-filter','ps-unit','idp-unit'].forEach(id=>{
+    const s=document.getElementById(id);const cur=s.value;
+    s.innerHTML='<option value="">ทั้งหมด</option>'+units.map(u=>`<option value="${u}"${u===cur?' selected':''}>${u}</option>`).join('');
+  });
+}
+
+function getPcts(row){return[1,2,3,4,5,6,7,8].map(i=>parseInt(row[`%ฐาน${i}`]||'0'));}
+
+/* ══ OVERVIEW ══════════════════════════════════════════════════ */
+function renderOverview(){
+  if(!allData.length)return;
+  const n=allData.length;
+  const pass=allData.filter(d=>d['ผลสรุป']==='ผ่านทุกฐาน').length;
+  const fail=n-pass;
+  const avgScore=Math.round(allData.reduce((a,d)=>a+parseInt(d['คะแนนรวม']||0),0)/n);
+
+  document.getElementById('ov-n').textContent=n;
+  document.getElementById('ov-n-sub').textContent='คน ทั้งฝ่ายการพยาบาล';
+  document.getElementById('ov-pass').textContent=pass;
+  document.getElementById('ov-pass-pct').textContent=Math.round(pass/n*100)+'% ของทั้งหมด';
+  document.getElementById('ov-fail').textContent=fail;
+  document.getElementById('ov-fail-pct').textContent=Math.round(fail/n*100)+'% ต้องพัฒนา';
+  document.getElementById('ov-avg').textContent=avgScore;
+
+  // Bar chart
+  const stPassRates=ST_NAMES.map((_,si)=>Math.round(allData.filter(d=>parseInt(d[`%ฐาน${si+1}`]||'0')>=70).length/n*100));
+  document.getElementById('ov-bar').innerHTML=stPassRates.map((r,i)=>{
+    const c=r>=70?'var(--green)':r>=50?'var(--amber)':'var(--red)';
+    return`<div class="bar-row"><div class="bar-lbl">ฐาน${i+1}: ${ST_SHORT[i]}</div>
+      <div class="bar-wrap"><div class="bar-fill" style="width:${r}%;background:${c}"></div></div>
+      <div class="bar-pct" style="color:${c}">${r}%</div></div>`;
+  }).join('');
+
+  // Radar
+  const avgPcts=ST_NAMES.map((_,si)=>allData.reduce((a,d)=>a+parseInt(d[`%ฐาน${si+1}`]||'0'),0)/n/100);
+  drawRadar('ov-radar',avgPcts,'var(--blue)');
+
+  // Critical
+  const critMap={};
+  allData.forEach(d=>getPcts(d).forEach((p,i)=>{if(p<50){const k=`ฐาน${i+1}:${ST_SHORT[i]}`;critMap[k]=(critMap[k]||0)+1;}}));
+  const sorted=Object.entries(critMap).sort((a,b)=>b[1]-a[1]).slice(0,6);
+  const critEl=document.getElementById('ov-crit');
+  if(!sorted.length){critEl.innerHTML='<div style="color:var(--green);font-size:13px">ไม่พบ Critical Fail</div>';return;}
+  const mx=sorted[0][1];
+  critEl.innerHTML=sorted.map(([lbl,cnt])=>`<div class="bar-row">
+    <div class="bar-lbl">${lbl}</div>
+    <div class="bar-wrap"><div class="bar-fill" style="width:${Math.round(cnt/mx*100)}%;background:var(--red)"></div></div>
+    <div class="bar-pct" style="color:var(--red)">${cnt} คน (${Math.round(cnt/n*100)}%)</div></div>`).join('');
+
+  // Summary
+  const passRate=Math.round(pass/n*100);
+  const weakStation=ST_NAMES.map((_,si)=>({si,rate:Math.round(allData.filter(d=>parseInt(d[`%ฐาน${si+1}`]||'0')>=70).length/n*100)}))
+    .sort((a,b)=>a.rate-b.rate).slice(0,3);
+  document.getElementById('ov-summary').innerHTML=`
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+      <div style="background:${passRate>=70?'var(--ltGreen)':'var(--ltRed)'};border-radius:var(--rs);padding:12px">
+        <div style="font-size:13px;font-weight:700;color:${passRate>=70?'var(--green)':'var(--red)'}">
+          ${passRate>=70?'✓ ภาพรวมผ่านเกณฑ์':'⚠ ภาพรวมต่ำกว่าเกณฑ์'}</div>
+        <div style="font-size:12px;margin-top:4px">อัตราผ่านภาพรวม: <strong>${passRate}%</strong> 
+          ${passRate>=70?'(เป้าหมาย ≥70%)':'— ต้องเร่งพัฒนา'}</div>
+      </div>
+      <div style="background:var(--ltAmber);border-radius:var(--rs);padding:12px">
+        <div style="font-size:13px;font-weight:700;color:var(--amber)">⚡ ฐานที่ควรเร่งพัฒนา</div>
+        <div style="font-size:12px;margin-top:4px">
+          ${weakStation.map(({si,rate})=>`ฐาน${si+1} ${ST_SHORT[si]}: ${rate}%`).join(' | ')}
+        </div>
+      </div>
+    </div>
+    <div style="margin-top:10px;font-size:12px;color:var(--gray);line-height:1.7">
+      <strong>ข้อเสนอแนะ:</strong> ${fail>0?`มีพยาบาล ${fail} คน (${Math.round(fail/n*100)}%) ที่ต้องสอบซ้ำ ควรจัดให้มีการฝึกซ้อมและสอบซ้ำภายใน 2 สัปดาห์`:'พยาบาลทุกคนผ่านการประเมินทุกฐาน ขอชมเชยทีมงาน'}
+    </div>`;
+}
+
+/* ══ DEPT ══════════════════════════════════════════════════════ */
+function renderDept(){
+  if(!allData.length)return;
+  const n=allData.length;
+  const pass=allData.filter(d=>d['ผลสรุป']==='ผ่านทุกฐาน').length;
+  const avgPct=Math.round(allData.reduce((a,d)=>a+parseInt(d['%รวม']||'0'),0)/n);
+
+  document.getElementById('dp-n').textContent=n;
+  document.getElementById('dp-pass-rate').textContent=Math.round(pass/n*100)+'%';
+  document.getElementById('dp-avg-pct').textContent=avgPct+'%';
+
+  // Unit bar
+  const units=[...new Set(allData.map(d=>d['หน่วยงาน']).filter(Boolean))].sort();
+  document.getElementById('dp-unit-bar').innerHTML=units.map(u=>{
+    const ud=allData.filter(d=>d['หน่วยงาน']===u);
+    const r=Math.round(ud.filter(d=>d['ผลสรุป']==='ผ่านทุกฐาน').length/ud.length*100);
+    const c=r>=70?'var(--green)':r>=50?'var(--amber)':'var(--red)';
+    return`<div class="bar-row"><div class="bar-lbl" style="min-width:140px">${u}</div>
+      <div class="bar-wrap"><div class="bar-fill" style="width:${r}%;background:${c}"></div></div>
+      <div class="bar-pct" style="color:${c}">${r}%</div></div>`;
+  }).join('');
+
+  // Station pass bar
+  document.getElementById('dp-station-bar').innerHTML=ST_NAMES.map((_,si)=>{
+    const r=Math.round(allData.filter(d=>parseInt(d[`%ฐาน${si+1}`]||'0')>=70).length/n*100);
+    const c=r>=70?'var(--green)':r>=50?'var(--amber)':'var(--red)';
+    return`<div class="bar-row"><div class="bar-lbl">ฐาน${si+1}: ${ST_SHORT[si]}</div>
+      <div class="bar-wrap"><div class="bar-fill" style="width:${r}%;background:${c}"></div></div>
+      <div class="bar-pct" style="color:${c}">${r}%</div></div>`;
+  }).join('');
+
+  // Report
+  const topPass=units.sort((a,b)=>{
+    const ar=allData.filter(d=>d['หน่วยงาน']===a),br=allData.filter(d=>d['หน่วยงาน']===b);
+    return Math.round(br.filter(d=>d['ผลสรุป']==='ผ่านทุกฐาน').length/br.length*100)-
+           Math.round(ar.filter(d=>d['ผลสรุป']==='ผ่านทุกฐาน').length/ar.length*100);
+  });
+  document.getElementById('dp-report').innerHTML=`
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+      <div style="background:var(--ltGreen);border-radius:var(--rs);padding:10px">
+        <div style="font-size:12px;font-weight:700;color:var(--green)">🏆 หน่วยงานอัตราผ่านสูงสุด</div>
+        <div style="font-size:13px;font-weight:700;margin-top:4px">${topPass[0]||'—'}</div>
+      </div>
+      <div style="background:var(--ltRed);border-radius:var(--rs);padding:10px">
+        <div style="font-size:12px;font-weight:700;color:var(--red)">⚠ หน่วยงานที่ต้องพัฒนา</div>
+        <div style="font-size:13px;font-weight:700;margin-top:4px">${topPass[topPass.length-1]||'—'}</div>
+      </div>
+    </div>
+    <div style="font-size:12px;color:var(--gray);line-height:1.8">
+      <strong>สรุปผลการประเมินระดับฝ่ายการพยาบาล ปีงบประมาณ 2569</strong><br>
+      จากการประเมินพยาบาลใหม่ทั้งสิ้น ${n} คน พบอัตราผ่านภาพรวม ${Math.round(pass/n*100)}% 
+      (ผ่าน ${pass} คน ไม่ผ่าน ${n-pass} คน) คะแนนเฉลี่ยรวม ${avgPct}%<br>
+      ฐานที่มีอัตราผ่านต่ำที่สุดได้แก่: ${ST_NAMES.map((_,si)=>({si,r:Math.round(allData.filter(d=>parseInt(d[`%ฐาน${si+1}`]||'0')>=70).length/n*100)})).sort((a,b)=>a.r-b.r).slice(0,2).map(({si,r})=>`ฐาน${si+1} ${ST_SHORT[si]} (${r}%)`).join(', ')}
+    </div>`;
+}
+
+/* ══ UNIT ══════════════════════════════════════════════════════ */
+function renderUnit(){
+  const filter=document.getElementById('unit-filter').value;
+  const data=filter?allData.filter(d=>d['หน่วยงาน']===filter):allData;
+  const units=[...new Set(data.map(d=>d['หน่วยงาน']).filter(Boolean))].sort();
+  if(!data.length)return;
+
+  // Metric cards
+  document.getElementById('unit-metrics').innerHTML=units.slice(0,4).map(u=>{
+    const ud=data.filter(d=>d['หน่วยงาน']===u);
+    const pass=ud.filter(d=>d['ผลสรุป']==='ผ่านทุกฐาน').length;
+    const avgPct=Math.round(ud.reduce((a,d)=>a+parseInt(d['%รวม']||0),0)/ud.length);
+    const cls=avgPct>=70?'g':avgPct>=50?'a':'r';
+    return`<div class="mc ${cls}" style="border-radius:var(--r)">
+      <div style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:6px">${u}</div>
+      <div class="mv" style="color:${avgPct>=70?'var(--green)':avgPct>=50?'var(--amber)':'var(--red)'}">${avgPct}%</div>
+      <div class="ml">${ud.length} คน | ผ่าน ${pass}/${ud.length}</div></div>`;
+  }).join('');
+
+  // Bar
+  document.getElementById('unit-bar').innerHTML=ST_NAMES.map((_,si)=>{
+    const avg=Math.round(data.reduce((a,d)=>a+parseInt(d[`%ฐาน${si+1}`]||'0'),0)/data.length);
+    const c=avg>=70?'var(--green)':avg>=50?'var(--amber)':'var(--red)';
+    return`<div class="bar-row"><div class="bar-lbl">ฐาน${si+1}: ${ST_SHORT[si]}</div>
+      <div class="bar-wrap"><div class="bar-fill" style="width:${avg}%;background:${c}"></div></div>
+      <div class="bar-pct" style="color:${c}">${avg}%</div></div>`;
+  }).join('');
+
+  // Radar
+  const avgPcts=ST_NAMES.map((_,si)=>data.reduce((a,d)=>a+parseInt(d[`%ฐาน${si+1}`]||'0'),0)/data.length/100);
+  drawRadar('unit-radar',avgPcts,'var(--teal)');
+
+  // Table
+  document.getElementById('unit-tbody').innerHTML=units.map(u=>{
+    const ud=data.filter(d=>d['หน่วยงาน']===u);
+    const avg=Math.round(ud.reduce((a,d)=>a+parseInt(d['คะแนนรวม']||0),0)/ud.length);
+    const avgPct=Math.round(ud.reduce((a,d)=>a+parseInt(d['%รวม']||0),0)/ud.length);
+    const pass=ud.filter(d=>d['ผลสรุป']==='ผ่านทุกฐาน').length;
+    const rate=Math.round(pass/ud.length*100);
+    const c=rate>=70?'var(--green)':rate>=50?'var(--amber)':'var(--red)';
+    const weakSi=ST_NAMES.map((_,si)=>({si,avg:Math.round(ud.reduce((a,d)=>a+parseInt(d[`%ฐาน${si+1}`]||'0'),0)/ud.length)})).sort((a,b)=>a.avg-b.avg)[0];
+    return`<tr><td><strong>${u}</strong></td><td>${ud.length}</td><td>${avg}/${TOTAL_MAX}</td>
+      <td style="font-weight:700;color:${c}">${avgPct}%</td>
+      <td><span class="pill p-pass">${pass}</span></td>
+      <td><span class="pill ${ud.length-pass>0?'p-fail':'p-pass'}">${ud.length-pass}</span></td>
+      <td style="font-weight:700;color:${c}">${rate}%</td>
+      <td style="font-size:11px;color:var(--red)">ฐาน${weakSi.si+1} (${weakSi.avg}%)</td></tr>`;
+  }).join('');
+}
+
+/* ══ PERSON ════════════════════════════════════════════════════ */
+function renderPerson(){
+  const search=document.getElementById('ps-search').value.toLowerCase();
+  const unitF=document.getElementById('ps-unit').value;
+  const resF=document.getElementById('ps-result').value;
+  let data=allData.filter(d=>{
+    const ms=!search||(d['ชื่อ-สกุล']||'').toLowerCase().includes(search)||(d['รหัสบุคลากร']||'').includes(search);
+    const mu=!unitF||d['หน่วยงาน']===unitF;
+    const mr=!resF||(resF==='pass'&&d['ผลสรุป']==='ผ่านทุกฐาน')||(resF==='fail'&&d['ผลสรุป']!=='ผ่านทุกฐาน');
+    return ms&&mu&&mr;
+  });
+  const tbody=document.getElementById('person-tbody');
+  if(!data.length){tbody.innerHTML='<tr><td colspan="14" style="text-align:center;padding:20px;color:var(--gray)">ไม่พบข้อมูล</td></tr>';return;}
+  tbody.innerHTML=data.map((d,idx)=>{
+    const pcts=getPcts(d);
+    const overall=d['ผลสรุป']==='ผ่านทุกฐาน';
+    const cells=pcts.map(p=>{const c=p>=70?'var(--green)':p>=50?'var(--amber)':'var(--red)';
+      return`<td style="text-align:center;font-weight:700;color:${c};font-size:11px">${p}%</td>`;}).join('');
+    return`<tr style="cursor:pointer" onclick="showPersonDetail(${allData.indexOf(d)})">
+      <td>${idx+1}</td><td><strong>${d['ชื่อ-สกุล']||'—'}</strong><br>
+      <span style="font-size:10px;color:var(--gray)">${d['รหัสบุคลากร']||''}</span></td>
+      <td style="font-size:11px">${d['หน่วยงาน']||'—'}</td>
+      <td>${d['คะแนนรวม']||'—'}/${TOTAL_MAX}</td>
+      <td style="font-weight:700;color:${overall?'var(--green)':'var(--red)'}">${d['%รวม']||'—'}%</td>
+      <td><span class="pill ${overall?'p-pass':'p-fail'}">${d['ผลสรุป']||'—'}</span></td>
+      ${cells}</tr>`;
+  }).join('');
+}
+
+function showPersonDetail(idx){
+  const d=allData[idx];if(!d)return;
+  const pcts=getPcts(d);
+  const weak=pcts.map((p,i)=>({p,i})).filter(x=>x.p<70);
+  const med=pcts.map((p,i)=>({p,i})).filter(x=>x.p>=70&&x.p<85);
+  const str=pcts.map((p,i)=>({p,i})).filter(x=>x.p>=85);
+  const det=document.getElementById('person-detail');
+  det.style.display='block';
+  det.innerHTML=`<div class="card" style="border:2px solid var(--blue);margin-top:10px">
+    <div class="card-title">📋 รายละเอียด: ${d['ชื่อ-สกุล']}
+      <button onclick="document.getElementById('person-detail').style.display='none'"
+        style="margin-left:auto;padding:4px 10px;background:var(--ltGray);border:none;
+          border-radius:6px;cursor:pointer;font-size:12px">✕ ปิด</button>
+    </div>
+    <div class="three-col" style="margin-bottom:14px">
+      <div><div style="font-size:11px;color:var(--gray)">หน่วยงาน</div><strong>${d['หน่วยงาน']||'—'}</strong></div>
+      <div><div style="font-size:11px;color:var(--gray)">คะแนนรวม</div>
+        <strong style="font-size:20px">${d['คะแนนรวม']}/${TOTAL_MAX} (${d['%รวม']}%)</strong></div>
+      <div><div style="font-size:11px;color:var(--gray)">ผล</div>
+        <span class="rb ${d['ผลสรุป']==='ผ่านทุกฐาน'?'rb-pass':'rb-fail'}">${d['ผลสรุป']}</span></div>
+    </div>
+    <div class="two-col">
+      <div>
+        <div style="font-size:13px;font-weight:700;margin-bottom:8px">คะแนนรายฐาน</div>
+        ${ST_NAMES.map((n,i)=>{const c=pcts[i]>=70?'var(--green)':pcts[i]>=50?'var(--amber)':'var(--red)';
+          return`<div class="bar-row"><div class="bar-lbl">ฐาน${i+1}: ${ST_SHORT[i]}</div>
+            <div class="bar-wrap"><div class="bar-fill" style="width:${pcts[i]}%;background:${c}"></div></div>
+            <div class="bar-pct" style="color:${c}">${pcts[i]}%</div></div>`;}).join('')}
+      </div>
+      <div>
+        <div style="font-size:13px;font-weight:700;margin-bottom:8px">Radar สมรรถนะ</div>
+        <div class="radar-center"><svg id="det-radar-${idx}" viewBox="0 0 260 240" style="max-width:260px;width:100%"></svg></div>
+      </div>
+    </div>
+    <div style="margin-top:14px">
+      <div style="font-size:13px;font-weight:700;margin-bottom:8px">แผนพัฒนาเฉพาะบุคคล</div>
+      ${weak.length?`<div style="font-size:12px;font-weight:700;color:var(--red);margin-bottom:6px">ต้องพัฒนาด่วน</div>${weak.map(({p,i})=>`<div class="idp d-fail"><div style="font-weight:700;font-size:13px">ฐาน${i+1}: ${ST_NAMES[i]} — ${p}%</div><div style="font-size:12px;margin-top:4px">${RECS[i]}</div></div>`).join('')}`:''}
+      ${med.length?`<div style="font-size:12px;font-weight:700;color:var(--amber);margin:8px 0 6px">ควรเสริมสร้าง</div>${med.map(({p,i})=>`<div class="idp d-warn"><div style="font-weight:700;font-size:13px">ฐาน${i+1}: ${ST_NAMES[i]} — ${p}%</div></div>`).join('')}`:''}
+      ${str.length?`<div style="font-size:12px;font-weight:700;color:var(--green);margin:8px 0 6px">จุดแข็ง</div>${str.map(({p,i})=>`<div class="idp d-pass"><div style="font-weight:700;font-size:13px">ฐาน${i+1}: ${ST_NAMES[i]} — ${p}%</div></div>`).join('')}`:''}
+    </div>
+  </div>`;
+  setTimeout(()=>drawRadar(`det-radar-${idx}`,pcts.map(p=>p/100),'var(--blue)'),50);
+  det.scrollIntoView({behavior:'smooth'});
+}
+
+/* ══ IDP ═══════════════════════════════════════════════════════ */
+function renderIDP(){
+  const unitF=document.getElementById('idp-unit').value;
+  const lvlF=document.getElementById('idp-level').value;
+  const data=unitF?allData.filter(d=>d['หน่วยงาน']===unitF):allData;
+  if(!data.length)return;
+
+  // Group summary cards
+  document.getElementById('idp-group-cards').innerHTML=GROUPS.map(({label,sts,color,tip})=>{
+    const avg=Math.round(sts.reduce((a,si)=>a+Math.round(data.reduce((b,d)=>b+parseInt(d[`%ฐาน${si+1}`]||'0'),0)/data.length),0)/sts.length);
+    const need=data.filter(d=>sts.some(si=>parseInt(d[`%ฐาน${si+1}`]||'0')<70)).length;
+    const c=avg>=70?'var(--green)':avg>=50?'var(--amber)':'var(--red)';
+    return`<div style="background:#fff;border-radius:var(--r);padding:14px;box-shadow:var(--shadow);border-left:4px solid ${color}">
+      <div style="font-size:13px;font-weight:700;margin-bottom:4px">${label}</div>
+      <div style="font-size:22px;font-weight:700;color:${c}">${avg}%</div>
+      <div style="font-size:11px;color:var(--gray);margin-top:4px">${tip}</div>
+      <div style="font-size:11px;color:var(--red);margin-top:4px">${need} คน ต้องพัฒนา</div>
+    </div>`;
+  }).join('');
+
+  // IDP list
+  const rows=data.map(d=>{const pcts=getPcts(d);const avg=Math.round(pcts.reduce((a,b)=>a+b,0)/8);return{d,pcts,avg};})
+    .filter(({pcts,avg})=>{
+      if(!lvlF)return true;
+      if(lvlF==='fail')return pcts.some(p=>p<70);
+      if(lvlF==='warn')return!pcts.some(p=>p<70)&&pcts.some(p=>p<85);
+      return pcts.every(p=>p>=85);
+    }).sort((a,b)=>a.avg-b.avg);
+
+  document.getElementById('idp-list').innerHTML=rows.map(({d,pcts,avg})=>{
+    const weak=pcts.map((p,i)=>({p,i})).filter(x=>x.p<70);
+    const lvl=pcts.every(p=>p>=85)?'pass':pcts.some(p=>p<70)?'fail':'warn';
+    const c=lvl==='pass'?'var(--green)':lvl==='fail'?'var(--red)':'var(--amber)';
+    return`<div class="idp d-${lvl}" style="margin-bottom:10px">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px">
+        <div><div style="font-weight:700;font-size:13px">${d['ชื่อ-สกุล']||'—'}</div>
+          <div style="font-size:11px;color:var(--gray)">${d['หน่วยงาน']||''} | รหัส ${d['รหัสบุคลากร']||''}</div></div>
+        <div style="text-align:right"><div style="font-weight:700;font-size:18px;color:${c}">${avg}%</div>
+          <span class="pill ${lvl==='pass'?'p-pass':lvl==='fail'?'p-fail':'p-warn'}">${d['ผลสรุป']||'—'}</span></div>
+      </div>
+      ${weak.length?`<div style="margin-top:8px;font-size:12px">
+        <span style="color:var(--red);font-weight:700">ต้องพัฒนา: </span>
+        ${weak.map(({p,i})=>`<span style="background:var(--ltRed);color:var(--red);padding:1px 6px;border-radius:8px;margin-right:4px;font-size:11px">ฐาน${i+1} ${ST_SHORT[i]} (${p}%)</span>`).join('')}
+        <div style="font-size:11px;color:var(--gray);margin-top:4px">${[...new Set(weak.map(({i})=>i))].map(i=>RECS[i]).join(' | ')}</div>
+      </div>`:''}
+    </div>`;
+  }).join('');
+
+  // Group guide
+  document.getElementById('idp-group-guide').innerHTML=GROUPS.map(({label,sts,color,tip})=>{
+    const avg=Math.round(sts.reduce((a,si)=>a+Math.round(data.reduce((b,d)=>b+parseInt(d[`%ฐาน${si+1}`]||'0'),0)/data.length),0)/sts.length);
+    const c=avg>=70?'var(--green)':avg>=50?'var(--amber)':'var(--red)';
+    const activities=sts.map(si=>RECS[si]).join(' | ');
+    return`<div style="border-left:4px solid ${color};padding:10px 14px;margin-bottom:8px;background:var(--ltGray);border-radius:0 var(--rs) var(--rs) 0">
+      <div style="display:flex;justify-content:space-between"><strong>${label}</strong><span style="color:${c};font-weight:700">${avg}%</span></div>
+      <div style="font-size:12px;color:var(--gray);margin-top:4px">${tip}</div>
+      <div style="font-size:11px;color:var(--navy);margin-top:4px"><strong>กิจกรรม:</strong> ${activities.substring(0,120)}...</div>
+    </div>`;
+  }).join('');
+}
+
+/* ══ TRACKING ══════════════════════════════════════════════════ */
+function renderTracking(){
+  if(!allData.length)return;
+  const n=allData.length;
+  const pass=allData.filter(d=>d['ผลสรุป']==='ผ่านทุกฐาน').length;
+  const fail=n-pass;
+
+  // Timeline
+  const today=new Date();
+  const phases=[
+    {label:'T0 — ก่อนโปรแกรม',date:'30 มิ.ย. 2569',status:'done',color:'var(--green)',desc:'เก็บ Baseline: Work Readiness + Self-Efficacy'},
+    {label:'โปรแกรมพัฒนาสมรรถนะ',date:'1–10 ส.ค. 2569',status:'done',color:'var(--green)',desc:`OSCE 8 ฐาน: ประเมิน ${n} คน | ผ่าน ${pass} คน | ไม่ผ่าน ${fail} คน`},
+    {label:'สอบซ้ำ ฐานที่ไม่ผ่าน',date:'ภายใน 2 สัปดาห์',status:fail>0?'active':'done',color:fail>0?'var(--amber)':'var(--green)',desc:fail>0?`${fail} คน ต้องสอบซ้ำ — จัดนัดและแจ้ง Preceptor`:'ผ่านทุกคน ✓'},
+    {label:'OJT + Preceptorship',date:'ส.ค. – ธ.ค. 2569',status:'active',color:'var(--blue)',desc:'ติดตามสมรรถนะรายเดือน + Preceptor Report'},
+    {label:'T2 — ติดตามผล 6 เดือน',date:'ม.ค. 2570',status:'pending',color:'var(--gray)',desc:'วัด Work Readiness + Self-Efficacy ซ้ำ + เก็บข้อมูลวิจัย'},
+  ];
+  document.getElementById('track-timeline').innerHTML=`<div style="position:relative;padding-left:24px">
+    <div style="position:absolute;left:8px;top:0;bottom:0;width:2px;background:var(--border)"></div>
+    ${phases.map(ph=>`<div style="position:relative;margin-bottom:16px">
+      <div style="position:absolute;left:-20px;top:2px;width:12px;height:12px;border-radius:50%;
+        background:${ph.color};border:2px solid #fff;box-shadow:0 0 0 2px ${ph.color}"></div>
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px">
+        <strong style="font-size:13px">${ph.label}</strong>
+        <span style="font-size:11px;color:${ph.color};background:${ph.color}22;padding:1px 8px;border-radius:10px;font-weight:700">
+          ${ph.status==='done'?'✓ เสร็จแล้ว':ph.status==='active'?'● กำลังดำเนินการ':'○ ยังไม่ถึงกำหนด'}</span>
+        <span style="font-size:11px;color:var(--gray)">${ph.date}</span>
+      </div>
+      <div style="font-size:12px;color:var(--gray)">${ph.desc}</div>
+    </div>`).join('')}
+  </div>`;
+
+  // Retry list
+  const failList=allData.filter(d=>d['ผลสรุป']!=='ผ่านทุกฐาน');
+  document.getElementById('track-retry-list').innerHTML=failList.length?failList.map(d=>{
+    const pcts=getPcts(d);
+    const failSt=pcts.map((p,i)=>p<70?`ฐาน${i+1}`:null).filter(Boolean);
+    return`<div style="border-bottom:1px solid var(--border);padding:8px 0">
+      <div style="font-weight:700;font-size:13px">${d['ชื่อ-สกุล']||'—'}</div>
+      <div style="font-size:11px;color:var(--gray)">${d['หน่วยงาน']||''}</div>
+      <div style="font-size:11px;color:var(--red);margin-top:2px">ต้องสอบซ้ำ: ${failSt.join(', ')}</div>
+    </div>`;
+  }).join(''):'<div style="color:var(--green);font-size:13px;padding:8px 0">✓ ไม่มีพยาบาลที่ต้องสอบซ้ำ</div>';
+
+  const passList=allData.filter(d=>d['ผลสรุป']==='ผ่านทุกฐาน');
+  document.getElementById('track-pass-list').innerHTML=passList.length?passList.map(d=>
+    `<div style="border-bottom:1px solid var(--border);padding:8px 0">
+      <div style="font-weight:700;font-size:13px">${d['ชื่อ-สกุล']||'—'}</div>
+      <div style="font-size:11px;color:var(--gray)">${d['หน่วยงาน']||''} | ${d['%รวม']||''}%</div>
+    </div>`).join(''):'<div style="color:var(--gray);font-size:13px;padding:8px 0">ยังไม่มีข้อมูล</div>';
+
+  // Action plan
+  document.getElementById('track-action').innerHTML=`
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px">
+      <div style="background:var(--ltRed);border-radius:var(--rs);padding:12px">
+        <div style="font-size:12px;font-weight:700;color:var(--red);margin-bottom:8px">ทันที (สัปดาห์นี้)</div>
+        ${['จัดนัดสอบซ้ำสำหรับ '+fail+' คน','แจ้ง Preceptor รับทราบผลการประเมิน','มอบแผน IDP รายบุคคลให้ผู้ที่ไม่ผ่าน'].map(t=>`<div style="font-size:12px;margin-bottom:4px">• ${t}</div>`).join('')}
+      </div>
+      <div style="background:var(--ltAmber);border-radius:var(--rs);padding:12px">
+        <div style="font-size:12px;font-weight:700;color:var(--amber);margin-bottom:8px">ระยะสั้น (1 เดือน)</div>
+        ${['จัดกิจกรรม Simulation Lab รายฐานอ่อน','ประเมิน OJT Progress ครั้งที่ 1','บันทึก Preceptor Report ทุก 2 สัปดาห์'].map(t=>`<div style="font-size:12px;margin-bottom:4px">• ${t}</div>`).join('')}
+      </div>
+      <div style="background:var(--ltGreen);border-radius:var(--rs);padding:12px">
+        <div style="font-size:12px;font-weight:700;color:var(--green);margin-bottom:8px">ระยะยาว (6 เดือน)</div>
+        ${['เก็บข้อมูล T2 Work Readiness (ม.ค. 2570)','วิเคราะห์ผลเพื่องานวิจัย Scopus','พัฒนาโปรแกรมรุ่นปี 2570 จากผลประเมิน'].map(t=>`<div style="font-size:12px;margin-bottom:4px">• ${t}</div>`).join('')}
+      </div>
+    </div>`;
+}
+
+/* ══ RADAR ═════════════════════════════════════════════════════ */
+function drawRadar(svgId,vals,strokeColor){
+  const svg=document.getElementById(svgId);if(!svg)return;
+  const vb=svg.getAttribute('viewBox').split(' ');
+  const W=parseInt(vb[2]),H=parseInt(vb[3]),cx=W/2,cy=H/2-8,r=Math.min(W,H)*0.32,N=8;
+  svg.innerHTML='';const ns='http://www.w3.org/2000/svg';
+  for(let ring=1;ring<=4;ring++){
+    let d='';for(let i=0;i<N;i++){const a=(i/N)*Math.PI*2-Math.PI/2,rv=r*ring/4;
+      d+=(i===0?'M':'L')+(cx+rv*Math.cos(a)).toFixed(1)+','+(cy+rv*Math.sin(a)).toFixed(1);}
+    const p=document.createElementNS(ns,'path');p.setAttribute('d',d+'Z');
+    p.setAttribute('fill','none');p.setAttribute('stroke','#DDE3EC');p.setAttribute('stroke-width','0.8');
+    svg.appendChild(p);
+  }
+  for(let i=0;i<N;i++){
+    const a=(i/N)*Math.PI*2-Math.PI/2;
+    const line=document.createElementNS(ns,'line');
+    line.setAttribute('x1',cx);line.setAttribute('y1',cy);
+    line.setAttribute('x2',(cx+r*Math.cos(a)).toFixed(1));line.setAttribute('y2',(cy+r*Math.sin(a)).toFixed(1));
+    line.setAttribute('stroke','#DDE3EC');line.setAttribute('stroke-width','0.8');svg.appendChild(line);
+    const lx=cx+(r+24)*Math.cos(a),ly=cy+(r+24)*Math.sin(a);
+    const t=document.createElementNS(ns,'text');t.setAttribute('x',lx.toFixed(1));t.setAttribute('y',ly.toFixed(1));
+    t.setAttribute('text-anchor','middle');t.setAttribute('dominant-baseline','middle');
+    t.setAttribute('font-size','9');t.setAttribute('fill','#666');t.setAttribute('font-family','Sarabun,sans-serif');
+    t.textContent=ST_SHORT[i];svg.appendChild(t);
+  }
+  let p70='';for(let i=0;i<N;i++){const a=(i/N)*Math.PI*2-Math.PI/2;
+    p70+=(i===0?'M':'L')+(cx+r*0.7*Math.cos(a)).toFixed(1)+','+(cy+r*0.7*Math.sin(a)).toFixed(1);}
+  const poly70=document.createElementNS(ns,'path');poly70.setAttribute('d',p70+'Z');
+  poly70.setAttribute('fill','none');poly70.setAttribute('stroke','#BA7517');
+  poly70.setAttribute('stroke-width','1.2');poly70.setAttribute('stroke-dasharray','4,3');svg.appendChild(poly70);
+  let dp='';(vals||[]).forEach((v,i)=>{const a=(i/N)*Math.PI*2-Math.PI/2,rv=r*Math.min(v,1);
+    dp+=(i===0?'M':'L')+(cx+rv*Math.cos(a)).toFixed(1)+','+(cy+rv*Math.sin(a)).toFixed(1);});
+  const dataPoly=document.createElementNS(ns,'path');dataPoly.setAttribute('d',dp+'Z');
+  dataPoly.setAttribute('fill',strokeColor.replace(')',',0.15)').replace('var(','rgba('));
+  dataPoly.setAttribute('fill-opacity','0.15');dataPoly.setAttribute('stroke',strokeColor);
+  dataPoly.setAttribute('stroke-width','2');svg.appendChild(dataPoly);
+  (vals||[]).forEach((v,i)=>{const a=(i/N)*Math.PI*2-Math.PI/2,rv=r*Math.min(v,1);
+    const dot=document.createElementNS(ns,'circle');
+    dot.setAttribute('cx',(cx+rv*Math.cos(a)).toFixed(1));dot.setAttribute('cy',(cy+rv*Math.sin(a)).toFixed(1));
+    dot.setAttribute('r','3.5');dot.setAttribute('fill',strokeColor);svg.appendChild(dot);});
+}
+
+/* ══ NAV ════════════════════════════════════════════════════════ */
+function showView(v){
+  document.querySelectorAll('.view').forEach(el=>el.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));
+  document.getElementById('view-'+v).classList.add('active');
+  document.getElementById('tab-'+v).classList.add('active');
+  if(v==='unit')renderUnit();
+  if(v==='person')renderPerson();
+  if(v==='idp')renderIDP();
+}
+</script>
+</body>
+</html>
